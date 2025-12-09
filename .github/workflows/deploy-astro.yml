@@ -1,0 +1,49 @@
+# Archivo: .github/workflows/deploy-astro.yml
+name: Deploy Astro Project to Pages
+
+on:
+  # Se ejecuta cuando hay un push a la rama 'main'
+  push:
+    branches: ["main"]
+  # Permite ejecutar el workflow manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+# Permisos para el GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      # Este comando genera la carpeta "dist" con los archivos HTML finales
+      - name: Build Astro project
+        run: npm run build
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      # Sube la carpeta 'dist' como el artefacto de despliegue
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' 
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
