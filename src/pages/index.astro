@@ -1,11 +1,46 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Aquí arriba va el código (JavaScript) si lo necesitas. Por ahora, vacío.
+const pageTitle = "Nombre Apellido";
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{pageTitle}</title>
+    
+    <style>
+      body {
+        background-color: #111; /* Casi negro, muy elegante */
+        color: #ddd; /* Blanco suave, no quema los ojos */
+        font-family: 'Courier New', Courier, monospace; /* Estilo técnico/código */
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+      h1 { font-weight: normal; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+      nav { margin-bottom: 3rem; }
+      a { color: #888; text-decoration: none; margin-right: 15px; }
+      a:hover { color: #fff; text-decoration: underline; }
+    </style>
+  </head>
+  
+  <body>
+    <header>
+      <h1>{pageTitle} // Digital Garden</h1>
+      <nav>
+        <a href="/">[Inicio]</a>
+        <a href="/musica">[Música]</a>
+        <a href="/videos">[Videos]</a>
+        <a href="/cv">[CV]</a>
+      </nav>
+    </header>
+
+    <main>
+      <p>Bienvenido. Este es un archivo de mis exploraciones sonoras y visuales.</p>
+      <p>Construyendo...</p>
+    </main>
+  </body>
+</html>
