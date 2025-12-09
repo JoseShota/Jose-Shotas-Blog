@@ -1,10 +1,11 @@
 ---
-// 1. IMPORTA el diseñador
-import BaseLayout from '../layouts/Layout.astro'; 
+// Importamos el layout que acabamos de crear
+import BaseLayout from '../layouts/Layout.astro';
+// Definimos el título específico para esta página (que BaseLayout usará)
 const pageTitle = "Jose Shota // Digital Garden";
 ---
 
-<BaseLayout title={pageTitle}> 
+<BaseLayout title={pageTitle}>
     <h2>{pageTitle}</h2>
     
     <p>
@@ -13,7 +14,7 @@ const pageTitle = "Jose Shota // Digital Garden";
     </p>
 
     <p>
-        [Estado: En Construcción]
+        [Última Actualización: 09/12/2025]
     </p>
 
 </BaseLayout>
