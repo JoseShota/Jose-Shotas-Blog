@@ -1,46 +1,19 @@
 ---
-// Aquí arriba va el código (JavaScript) si lo necesitas. Por ahora, vacío.
-const pageTitle = "Nombre Apellido";
+// 1. IMPORTA el diseñador
+import BaseLayout from '../layouts/BaseLayout.astro'; 
+const pageTitle = "Jose Shota // Digital Garden";
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <title>{pageTitle}</title>
+<BaseLayout title={pageTitle}> 
+    <h2>{pageTitle}</h2>
     
-    <style>
-      body {
-        background-color: #111; /* Casi negro, muy elegante */
-        color: #ddd; /* Blanco suave, no quema los ojos */
-        font-family: 'Courier New', Courier, monospace; /* Estilo técnico/código */
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-        line-height: 1.6;
-      }
-      h1 { font-weight: normal; border-bottom: 1px solid #333; padding-bottom: 1rem; }
-      nav { margin-bottom: 3rem; }
-      a { color: #888; text-decoration: none; margin-right: 15px; }
-      a:hover { color: #fff; text-decoration: underline; }
-    </style>
-  </head>
-  
-  <body>
-    <header>
-      <h1>{pageTitle} // Digital Garden</h1>
-      <nav>
-        <a href="/">[Inicio]</a>
-        <a href="/musica">[Música]</a>
-        <a href="/videos">[Videos]</a>
-        <a href="/cv">[CV]</a>
-      </nav>
-    </header>
+    <p>
+        Bienvenido al archivo personal y curaduría de mi trabajo.
+        Este sitio está diseñado con un enfoque en la performance y la tipografía.
+    </p>
 
-    <main>
-      <p>Bienvenido. Este es un archivo de mis exploraciones sonoras y visuales.</p>
-      <p>Construyendo...</p>
-    </main>
-  </body>
-</html>
+    <p>
+        [Estado: En Construcción]
+    </p>
+
+</BaseLayout>
