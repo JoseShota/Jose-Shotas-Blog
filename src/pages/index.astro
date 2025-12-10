@@ -2,19 +2,27 @@
 // Importamos el layout que acabamos de crear
 import BaseLayout from '../layouts/Layout.astro';
 // Definimos el título específico para esta página (que BaseLayout usará)
-const pageTitle = "Jose Shota // Digital Garden";
+const pageTitle = "La Cueva Virtual de Jose Shōta";
+
+// Esto genera la fecha de hoy automáticamente
+const lastUpdate = new Date().toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+});
 ---
 
 <BaseLayout title={pageTitle}>
     <h2>{pageTitle}</h2>
     
     <p>
-        Bienvenido al archivo personal y curaduría de mi trabajo.
-        Este sitio está diseñado con un enfoque en la performance y la tipografía.
+        Bienvenido al archivo personal de Jose.
+        Aquí yacen los escritos, las ediciones y la curaduría musical de un joven promedio.
+        Además de la huella laboral y académica de Jose.
     </p>
 
-    <p>
-        [Última Actualización: 09/12/2025]
+    <p style="font-size: 0.8rem; opacity: 0.8;">
+        [Última Actualización: {lastUpdate}]
     </p>
 
 </BaseLayout>
