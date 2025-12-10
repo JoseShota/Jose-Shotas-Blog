@@ -1,11 +1,16 @@
-// astro.config.mjs
 import { defineConfig } from 'astro/config';
 
+// Detectamos si estamos en Vercel
+const isVercel = process.env.VERCEL === '1';
+
 export default defineConfig({
-  // Reemplaza esto con la URL real de tu GitHub Pages si es diferente
+  // Tu dominio de GitHub Pages
   site: 'https://JoseShota.github.io', 
-  // OJO: Aquí va el nombre de tu repositorio con una barra al inicio
-  base: '/Jose-Shotas-Blog', 
+  
+  // LOGICA IMPORTANTE:
+  // 1. En Vercel: usa la raíz '/' (sin nombre de carpeta).
+  // 2. En GitHub: usa '/jose.shota' (el nombre de tu repo).
+  base: isVercel ? '/' : '/jose.shota', 
   
   i18n: {
     defaultLocale: "es",
