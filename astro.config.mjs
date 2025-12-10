@@ -1,14 +1,17 @@
-// @ts-check
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
-
 export default defineConfig({
+  // Reemplaza esto con la URL real de tu GitHub Pages si es diferente
+  site: 'https://JoseShota.github.io', 
+  // OJO: Aquí va el nombre de tu repositorio con una barra al inicio
+  base: '/Jose-Shotas-Blog', 
+  
   i18n: {
-    defaultLocale: "es", // Tu idioma principal
-    locales: ["es", "en"], // Los idiomas disponibles
+    defaultLocale: "es",
+    locales: ["es", "en"],
     routing: {
-        prefixDefaultLocale: false // 'es' estará en la raíz (/), 'en' estará en (/en)
+        prefixDefaultLocale: false
     }
   }
 });
