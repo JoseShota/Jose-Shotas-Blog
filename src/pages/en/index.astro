@@ -1,0 +1,19 @@
+---
+// OJO: Agregamos un "../" extra para salir de la carpeta "en" y encontrar "layouts"
+import BaseLayout from '../../layouts/Layout.astro'; 
+
+const pageTitle = "Jose Shota // Digital Garden";
+---
+
+<BaseLayout title={pageTitle}>
+    <h2>{pageTitle}</h2>
+    
+    <p>
+        Welcome to my personal archive and curated work.
+        This site is designed with a focus on performance and typography.
+    </p>
+
+    <p>
+        [Last Update: 12/09/2025]
+    </p>
+</BaseLayout>
