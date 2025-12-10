@@ -1,16 +1,16 @@
 import { defineConfig } from 'astro/config';
 
-// Detectamos si estamos en Vercel
-const isVercel = process.env.VERCEL === '1';
+// ESTRATEGIA INVERTIDA:
+// En lugar de preguntar si es Vercel, preguntamos si es GitHub Actions.
+// Esta variable SIEMPRE existe automáticamente cuando GitHub construye tu página.
+const isGitHub = process.env.GITHUB_ACTIONS === 'true';
 
 export default defineConfig({
-  // Tu dominio de GitHub Pages
-  site: 'https://JoseShota.github.io', 
+  site: 'https://JoseShota.github.io',
   
-  // LOGICA IMPORTANTE:
-  // 1. En Vercel: usa la raíz '/' (sin nombre de carpeta).
-  // 2. En GitHub: usa '/jose.shota' (el nombre de tu repo).
-  base: isVercel ? '/' : '/jose.shota', 
+  // Si es GitHub, usa el nombre del repo.
+  // Si NO es GitHub (es decir, es Vercel o Local), usa la raíz '/'.
+  base: isGitHub ? '/jose.shota' : '/',
   
   i18n: {
     defaultLocale: "es",
@@ -18,5 +18,10 @@ export default defineConfig({
     routing: {
         prefixDefaultLocale: false
     }
+  },
+  
+  // Mantenemos esto para evitar problemas de carpetas
+  build: {
+    format: 'directory'
   }
 });
