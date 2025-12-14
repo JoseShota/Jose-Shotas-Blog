@@ -6,22 +6,21 @@ const pageTitle = "Jose Shōta's Digital Cave";
 
 // Esto genera la fecha de hoy automáticamente
 const lastUpdate = new Date().toLocaleDateString('en-EN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
 });
 ---
 <BaseLayout title={pageTitle}>
-    <h2>{pageTitle}</h2>
-    
-    <BaseLayout title={pageTitle}>
-    <h2>Hello, netizen</h2>
-    
-    <p>Welcome to Jose's personal archive.</p>
-    <p>Here lie the writings, edits, and musical curation of an average young person.</p>
-    <p>Also included is Jose's professional and academic footprint.</p>
+        <h2>{pageTitle}</h2>
+    
+        <h2>Hello, netizen</h2>
+    
+    <p>Welcome to Jose's personal archive.</p>
+    <p>Here lie the writings, edits, and musical curation of an average young person.</p>
+    <p>Also included is Jose's professional and academic footprint.</p>
 
-    <p style="font-size: 0.8rem; opacity: 0.8;">
-        [Última Actualización: {lastUpdate}]
-    </p>
+    <p style="font-size: 0.8rem; opacity: 0.8;">
+        [Last Update: {lastUpdate}]
+    </p>
 </BaseLayout>
