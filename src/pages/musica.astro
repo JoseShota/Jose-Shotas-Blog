@@ -8,29 +8,34 @@ const pageTitle = "Curaduría Musical";
 <BaseLayout title={pageTitle}>
   <div class="min-h-screen bg-[#050505] text-gray-300 font-sans selection:bg-amber-900 selection:text-white">
     
-    {/* Navegación Simple */}
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
-      <a href="/" class="text-xs font-mono text-gray-600 hover:text-amber-600 transition-colors uppercase tracking-widest">
-        ← Jose Shōta / Index
+    {/* Navegación Superior Unificada */}
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between border-b border-gray-900/50">
+      <a href="/" class="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-amber-500 transition-colors uppercase tracking-widest group">
+        <span class="group-hover:-translate-x-1 transition-transform">←</span>
+        <span>Index</span>
       </a>
-      <span class="text-xs font-mono text-gray-500 uppercase tracking-widest border border-gray-800 px-3 py-1 rounded-full">
-        Hi-Fi Archives
-      </span>
+      
+      <div class="flex items-center gap-4">
+        <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+        <span class="text-xs font-mono text-gray-500 uppercase tracking-widest">
+          Hi-Fi Archives
+        </span>
+      </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       
-      {/* Encabezado General de la Sección */}
-      <header class="mb-16 border-b border-gray-900 pb-8">
-        <h1 class="text-3xl font-light text-white mb-2 tracking-wide">
+      {/* Título de Sección Único */}
+      <header class="mb-16">
+        <h1 class="text-3xl font-light text-white mb-4 tracking-wide border-l-4 border-amber-600 pl-6">
           {pageTitle}
         </h1>
-        <p class="text-gray-500 text-sm max-w-2xl font-serif italic">
-          Colección personal de paisajes sonoros. Selecciona un registro para comenzar la reproducción.
+        <p class="text-gray-500 text-sm max-w-2xl font-serif italic pl-7">
+          Colección personal de paisajes sonoros. Selecciona un registro para abrir el expediente.
         </p>
       </header>
 
-      {/* Aquí cargamos la Galería Interactiva */}
+      {/* Galería */}
       <MusicGallery client:load />
 
     </main>
