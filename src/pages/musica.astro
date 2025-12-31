@@ -1,10 +1,60 @@
 ---
+// Importamos tu Layout base
 import BaseLayout from '../layouts/Layout.astro';
+// Importamos el componente de React que creamos
+import MusicPlayer from '../components/MusicPlayer.jsx';
+
 const pageTitle = "Archivo // Música y Curaduría";
+const description = "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar ¿Qué canción elegirías de fondo? Una selección de Jose Shōta.";
 ---
 
 <BaseLayout title={pageTitle}>
-    <h2>{pageTitle}</h2>
-    <p>Aquí irá el reproductor minimalista de Spotify/SoundCloud.</p>
-    <p>Continúa en Milestone 3...</p>
+  <div class="min-h-screen bg-[#0a0a0a] text-gray-200 py-16 px-4 sm:px-6 lg:px-8 font-sans selection:bg-amber-900 selection:text-white">
+    
+    <header class="max-w-3xl mx-auto text-center mb-16 space-y-8 animate-fade-in-up">
+      
+      <h1 class="text-4xl md:text-6xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500">
+        {pageTitle}
+      </h1>
+      
+      <div class="relative">
+        <div class="w-16 h-1 bg-amber-600 mx-auto mb-6 rounded-full opacity-80 shadow-[0_0_10px_rgba(217,119,6,0.5)]"></div>
+        
+        <p class="text-lg md:text-xl text-gray-400 font-serif italic leading-relaxed">
+          "{description}"
+        </p>
+      </div>
+
+    </header>
+
+    <section class="max-w-5xl mx-auto relative z-10">
+      <div class="absolute -inset-1 bg-gradient-to-r from-amber-900 to-gray-900 rounded-lg blur opacity-20 transition duration-1000 group-hover:opacity-50"></div>
+      
+      <MusicPlayer client:load />
+    </section>
+
+    <footer class="mt-16 text-center opacity-40 hover:opacity-100 transition-opacity duration-500">
+      <p class="text-xs uppercase tracking-[0.2em] text-gray-500">
+        High Fidelity Streaming • Cloudflare R2 • Private Library
+      </p>
+    </footer>
+
+  </div>
 </BaseLayout>
+
+<style>
+  /* Una pequeña animación para que el texto entre suavemente al cargar la página */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+</style>
