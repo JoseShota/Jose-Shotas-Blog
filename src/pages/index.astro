@@ -1,98 +1,30 @@
 ---
-// src/pages/index.astro
 import BaseLayout from '../layouts/Layout.astro';
-import { ui, defaultLang } from '../i18n/ui'; // Importamos para mantener lógica de idiomas si la necesitas a futuro
+const pageTitle = "La Cueva Virtual de Jose Shōta";
 
-const pageTitle = "Lobby";
-const mainTitle = "La Cueva Virtual de Jose Shōta";
-
-// Lógica de fecha
 const lastUpdate = new Date().toLocaleDateString('es-ES', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
 });
-
-// Lógica de rutas auxiliar (simplificada para este archivo)
-const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<BaseLayout title={pageTitle} fullWidth={true} hideHeader={true}>
-  
-  <div class="min-h-screen bg-[#050505] text-gray-300 font-mono selection:bg-amber-900 selection:text-white flex flex-col">
+<BaseLayout title={pageTitle}>
     
-    {/* === NAVEGACIÓN SUPERIOR (Estilo Retro/Tailwind) === */}
-    <nav class="w-full border-b border-gray-900/50 bg-[#050505]/90 backdrop-blur-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        
-        {/* Menú de Enlaces */}
-        <div class="flex items-center gap-6 sm:gap-8">
-            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-            
-            <div class="flex gap-6 text-xs tracking-widest">
-                <a href="/" class="text-amber-500 font-bold border-b border-amber-500/50 pb-0.5 cursor-default">
-                    [LOBBY]
-                </a>
-                <a href="/musica" class="text-gray-500 hover:text-amber-500 transition-colors uppercase">
-                    [CURADURÍA]
-                </a>
-                <a href="/videos" class="text-gray-500 hover:text-amber-500 transition-colors uppercase">
-                    [VIDEOS]
-                </a>
-                <a href="/cv" class="text-gray-500 hover:text-amber-500 transition-colors uppercase">
-                    [CV]
-                </a>
-            </div>
-        </div>
+    <h2>Hola, cibernauta</h2>
+    
+    <p>Bienvenido al archivo personal de Jose.</p>
+    <p>Aquí yacen los escritos, las ediciones y la curaduría musical de un joven promedio.</p>
+    <p>Además de la huella laboral y académica de Jose.</p>
 
-        {/* Switch de Idioma (Visualmente integrado) */}
-        <div class="text-xs text-gray-600 tracking-widest">
-            <span class="text-gray-400">ES</span> / <a href="/en" class="hover:text-amber-500 transition-colors">EN</a>
-        </div>
-      </div>
-    </nav>
+    <div style="margin-top: 4rem;"></div>
 
-    {/* === CONTENIDO PRINCIPAL === */}
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
-      
-      {/* Título Principal */}
-      <header class="mb-16">
-        <h1 class="text-3xl sm:text-4xl text-white mb-6 tracking-tight border-l-4 border-amber-600 pl-6">
-          {mainTitle}
-        </h1>
-        <div class="pl-7 max-w-2xl">
-            <p class="text-amber-500/80 text-sm mb-2 uppercase tracking-widest opacity-80">
-                &gt; SYSTEM_READY
-            </p>
-            <p class="text-gray-400 text-lg leading-relaxed">
-                Bienvenido al archivo personal.
-            </p>
-        </div>
-      </header>
+    <div style="border: 1px solid #333; padding: 1rem; background: #000; font-size: 0.8rem; display: inline-block;">
+        <p style="margin: 0; color: #666;">
+            SYSTEM_STATUS: <span style="color: #22c55e;">ONLINE</span><br/>
+            LAST_UPDATE..: <span style="color: #d97706;">{lastUpdate}</span><br/>
+            LOCATION.....: MEXICO_CITY_NODE
+        </p>
+    </div>
 
-      {/* Cuerpo del texto */}
-      <div class="pl-0 sm:pl-7 grid gap-8 max-w-3xl">
-        <div class="space-y-4 text-gray-400 font-light leading-7 border-t border-gray-900 pt-8">
-            <p>
-                <span class="text-amber-600 font-bold mr-2">&gt;</span>
-                Aquí yacen los escritos, las ediciones y la curaduría musical de un joven promedio.
-            </p>
-            <p>
-                <span class="text-amber-600 font-bold mr-2">&gt;</span>
-                Además de la huella laboral y académica de Jose.
-            </p>
-        </div>
-
-        {/* Footer de datos estilo terminal */}
-        <div class="mt-12 p-4 border border-gray-900 rounded bg-gray-900/20 inline-block">
-            <p class="text-xs text-gray-600 font-mono">
-                STATUS: <span class="text-green-500">ONLINE</span><br/>
-                LAST_UPDATE: <span class="text-gray-400">{lastUpdate}</span><br/>
-                LOCATION: <span class="text-gray-400">WORLD_WIDE_WEB</span>
-            </p>
-        </div>
-      </div>
-
-    </main>
-  </div>
 </BaseLayout>

@@ -2,44 +2,20 @@
 import BaseLayout from '../layouts/Layout.astro';
 import MusicGallery from '../components/MusicGallery.jsx';
 
-const pageTitle = "Curaduría Musical";
+// El título que aparecerá arriba en el header del Layout
+const pageTitle = "La Cueva Virtual / Curaduría";
 ---
 
-<BaseLayout title={pageTitle} fullWidth={true}>
+<BaseLayout title={pageTitle}>
   
-  <div class="min-h-screen bg-[#050505] text-gray-300 font-sans selection:bg-amber-900 selection:text-white">
-    
-    {/* Navegación Superior Unificada */}
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between border-b border-gray-900/50">
-      <a href="/" class="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-amber-500 transition-colors uppercase tracking-widest group">
-        <span class="group-hover:-translate-x-1 transition-transform">←</span>
-        <span>Index</span>
-      </a>
-      
-      <div class="flex items-center gap-4">
-        <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-        <span class="text-xs font-mono text-gray-500 uppercase tracking-widest">
-          Hi-Fi Archives
-        </span>
-      </div>
-    </nav>
+  <h2 style="color: #d97706; margin-top: 0;">> INDEX / CURADURÍA_MUSICAL</h2>
+  
+  <p style="font-size: 0.9rem; font-style: italic; opacity: 0.8; margin-bottom: 2rem;">
+    Colección personal de paisajes sonoros. Selecciona un registro para abrir el expediente.
+  </p>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      
-      {/* Título de Sección Único */}
-      <header class="mb-16">
-        <h1 class="text-3xl font-light text-white mb-4 tracking-wide border-l-4 border-amber-600 pl-6">
-          {pageTitle}
-        </h1>
-        <p class="text-gray-500 text-sm max-w-2xl font-serif italic pl-7">
-          Colección personal de paisajes sonoros. Selecciona un registro para abrir el expediente.
-        </p>
-      </header>
-
-      {/* Galería */}
+  <div style="border-top: 1px dashed #333; padding-top: 2rem;">
       <MusicGallery client:load />
-
-    </main>
-
   </div>
+
 </BaseLayout>
