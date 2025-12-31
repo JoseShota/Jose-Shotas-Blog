@@ -2,15 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, ChevronLeft } from 'lucide-react';
 import playlistData from '../data/playlist.json';
 
-// TUS COLECCIONES
+// --- TUS DATOS ---
 const COLLECTIONS = [
   {
     id: 'vol1',
     title: "Canciones para cuando muera y transcienda",
-    description: "Imagina levitar en medio de una calle transitada...",
+    description: "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo?",
     cover: "/images/playlist-cover-v1.jpg", 
     tracks: playlistData, 
-    totalDuration: "1h 14m", 
     trackCount: playlistData.length
   },
   // Más colecciones...
@@ -21,18 +20,19 @@ export default function MusicGallery() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
-  const [duration, setDuration] = useState(0); // Estado para duración real
-  const [currentTime, setCurrentTime] = useState(0); // Estado para tiempo actual
+  
+  // Estados para el tiempo (Arreglo del bug de duración)
+  const [duration, setDuration] = useState(0); 
+  const [currentTime, setCurrentTime] = useState(0);
   
   const audioRef = useRef(null);
   const progressBarRef = useRef(null);
 
   const currentTrack = activePlaylist ? activePlaylist.tracks[currentTrackIndex] : null;
 
-  // Efecto: Reproducir al cambiar de canción
   useEffect(() => {
     if (isPlaying && audioRef.current) {
-      audioRef.current.play().catch(e => console.error("Playback error:", e));
+      audioRef.current.play().catch(e => console.error(e));
     }
   }, [currentTrackIndex, activePlaylist]);
 
@@ -52,7 +52,7 @@ export default function MusicGallery() {
     }
   };
 
-  // CRÍTICO: Lee la duración real del archivo MP3 cuando carga
+  // --- CRÍTICO: Leer metadatos del audio para obtener duración real ---
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
@@ -68,45 +68,37 @@ export default function MusicGallery() {
   };
 
   const formatTime = (time) => {
-    if (isNaN(time)) return "0:00";
+    if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // --- VISTA 1: GALERÍA (Grid de "Expedientes") ---
+  // --- VISTA 1: GRID (Sin cambios) ---
   if (!activePlaylist) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-fade-in pb-24 font-mono">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in pb-24 font-mono">
         {COLLECTIONS.map((playlist) => (
           <div 
             key={playlist.id} 
             onClick={() => setActivePlaylist(playlist)}
-            className="group cursor-pointer border border-gray-800 p-3 hover:border-amber-600/50 transition-colors duration-300"
+            className="group cursor-pointer border border-gray-800 p-3 hover:border-amber-600 transition-colors"
           >
-            <div className="relative aspect-square bg-black mb-4 overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-500">
-                <img 
-                    src={playlist.cover} 
-                    alt={playlist.title} 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100"
-                    onError={(e) => {e.target.src = 'https://via.placeholder.com/400x400/1a1a1a/ffffff?text=NO+IMAGE'}} 
-                />
+            <div className="aspect-square bg-black mb-3 overflow-hidden">
+                <img src={playlist.cover} alt={playlist.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all" />
             </div>
-            <div className="space-y-2">
-              <h3 className="text-base text-gray-200 leading-tight group-hover:text-amber-500 transition-colors font-bold">
-                {playlist.title}
-              </h3>
-            </div>
+            <h3 className="text-sm text-gray-200 font-bold group-hover:text-amber-500">{playlist.title}</h3>
           </div>
         ))}
       </div>
     );
   }
 
-  // --- VISTA 2: LISTA + REPRODUCTOR LATERAL (Compacto) ---
+  // --- VISTA 2: LISTA + REPRODUCTOR ---
   return (
-    <div className="animate-fade-in relative font-mono text-sm">
+    <div className="animate-fade-in font-mono text-sm relative">
       
+      {/* Audio Element con onLoadedMetadata */}
       <audio 
         ref={audioRef} 
         src={currentTrack?.src} 
@@ -123,22 +115,20 @@ export default function MusicGallery() {
 
       <button 
         onClick={() => { setIsPlaying(false); setActivePlaylist(null); }}
-        className="mb-6 flex items-center gap-2 text-xs text-gray-500 hover:text-amber-500 transition-colors uppercase tracking-widest border-b border-transparent hover:border-amber-500 w-fit pb-1"
+        className="mb-6 flex items-center gap-2 text-xs text-gray-500 hover:text-amber-500 uppercase tracking-widest"
       >
         <ChevronLeft size={14} /> Volver
       </button>
 
-      {/* LAYOUT PRINCIPAL CORREGIDO:
-         - md:flex-row: Se pone lado a lado desde pantallas medianas (Tablets).
-         - gap-6: Reducimos el espacio entre columnas para que quepan.
-         - items-start: CRÍTICO para el sticky.
+      {/* LAYOUT PRINCIPAL CORREGIDO PARA 800PX:
+         1. md:flex-row -> Se activa a los 768px (antes de llegar al límite de 800px).
+         2. items-start -> Obligatorio para sticky.
       */}
-      <div className="flex flex-col md:flex-row gap-6 items-start relative">
+      <div className="flex flex-col md:flex-row gap-6 items-start">
         
-        {/* --- COLUMNA 1: LISTA (Se adapta al espacio restante) --- */}
+        {/* --- COLUMNA 1: LISTA --- */}
         <div className="flex-1 w-full min-w-0">
-            {/* Header de tabla */}
-            <div className="grid grid-cols-[20px_1fr_40px] gap-2 px-2 pb-2 border-b border-gray-800 text-[10px] text-gray-500 uppercase tracking-widest sticky top-0 bg-[#111] z-10">
+            <div className="grid grid-cols-[20px_1fr_40px] gap-2 px-2 pb-2 border-b border-gray-800 text-[10px] text-gray-500 uppercase sticky top-0 bg-[#111] z-10">
                 <div className="text-center">#</div>
                 <div>Track</div>
                 <div className="text-right">Time</div>
@@ -152,23 +142,17 @@ export default function MusicGallery() {
                             key={track.id}
                             onClick={() => { setCurrentTrackIndex(index); setIsPlaying(true); }}
                             className={`
-                                group grid grid-cols-[20px_1fr_40px] gap-2 items-center py-3 px-2 cursor-pointer border-b border-gray-900/40 hover:bg-white/5 transition-colors
-                                ${isCurrent ? 'text-amber-500 bg-white/5' : 'text-gray-400'}
+                                grid grid-cols-[20px_1fr_40px] gap-2 items-center py-3 px-2 cursor-pointer border-b border-gray-900/40 hover:bg-white/5 transition-colors
+                                ${isCurrent ? 'text-amber-500' : 'text-gray-400'}
                             `}
                         >
                             <div className="text-[10px] text-center">
                                 {isCurrent ? <Disc size={10} className={isPlaying ? "animate-spin-slow" : ""}/> : (index + 1).toString().padStart(2, '0')}
                             </div>
-                            
                             <div className="truncate flex flex-col">
-                                <span className={`font-medium truncate ${isCurrent ? 'text-amber-500' : 'text-gray-300 group-hover:text-white'}`}>
-                                    {track.title}
-                                </span>
-                                <span className="text-[10px] text-gray-600 truncate">
-                                    {track.artist}
-                                </span>
+                                <span className="truncate font-medium">{track.title}</span>
+                                <span className="text-[10px] text-gray-600 truncate">{track.artist}</span>
                             </div>
-                            
                             <div className="text-[10px] text-right">
                                 {track.duration || "--:--"}
                             </div>
@@ -176,86 +160,58 @@ export default function MusicGallery() {
                     );
                 })}
             </div>
-            {/* Espacio extra al final para scroll cómodo */}
-            <div className="h-24"></div>
+            {/* Espacio extra al final */}
+            <div className="h-20"></div>
         </div>
 
-        {/* --- COLUMNA 2: REPRODUCTOR (Compacto & Sticky) --- 
-            - w-full md:w-[260px]: Ancho reducido a 260px para que quepa en 800px.
-            - sticky top-4: Se pega al techo.
+        {/* --- COLUMNA 2: REPRODUCTOR STICKY --- 
+           1. md:w-[250px] -> Ancho reducido para que quepa junto a la lista.
+           2. sticky top-4 -> Se queda fijo al hacer scroll.
         */}
-        <div className="w-full md:w-[260px] flex-shrink-0 sticky top-4 self-start bg-[#0a0a0a] border border-gray-800 p-4 shadow-xl z-20">
+        <div className="w-full md:w-[250px] flex-shrink-0 sticky top-4 bg-[#0a0a0a] border border-gray-800 p-4 z-20">
             
-            {/* Portada */}
-            <div className="aspect-square w-full bg-black mb-4 border border-gray-900 overflow-hidden">
+            <div className="aspect-square w-full bg-black mb-4 border border-gray-900 grayscale">
                 <img 
                     src={activePlaylist.cover} 
-                    alt="Now Playing"
-                    className={`w-full h-full object-cover transition-all duration-1000 ${isPlaying ? 'opacity-100 grayscale-0' : 'opacity-60 grayscale'}`}
+                    className={`w-full h-full object-cover transition-all duration-1000 ${isPlaying ? 'opacity-100 grayscale-0' : 'opacity-60'}`}
                 />
             </div>
 
-            {/* Info Track */}
-            <div className="mb-5 text-center px-1">
-                <h2 className="text-sm text-white leading-tight font-serif italic mb-1 line-clamp-2 min-h-[2.5em]">
-                    {currentTrack ? currentTrack.title : "Selecciona un track"}
+            <div className="mb-4 text-center">
+                <h2 className="text-sm text-white italic truncate px-2">
+                    {currentTrack ? currentTrack.title : "Selecciona"}
                 </h2>
-                <p className="text-[10px] text-amber-600 uppercase tracking-widest truncate">
+                <p className="text-[10px] text-amber-600 uppercase mt-1 truncate">
                     {currentTrack ? currentTrack.artist : "..."}
                 </p>
             </div>
 
-            {/* Timeline & Controls */}
-            <div className={`space-y-4 ${!currentTrack && 'opacity-50 pointer-events-none'}`}>
-                
-                {/* Barra de progreso */}
-                <div 
-                    className="w-full h-3 flex items-center cursor-pointer group"
-                    onClick={handleProgressClick}
-                >
-                    <div className="h-[2px] bg-gray-700 w-full relative group-hover:h-[4px] transition-all rounded-full overflow-hidden">
-                        <div ref={progressBarRef} className="h-full bg-amber-600 w-0 absolute top-0 left-0"></div>
-                    </div>
+            <div className={`space-y-3 ${!currentTrack && 'opacity-50 pointer-events-none'}`}>
+                {/* Timeline */}
+                <div className="w-full h-2 bg-gray-900 cursor-pointer group rounded-full overflow-hidden" onClick={handleProgressClick}>
+                    <div ref={progressBarRef} className="h-full bg-amber-600 w-0"></div>
                 </div>
                 
-                {/* Tiempo Real (Arreglado el espaciado) */}
-                <div className="flex justify-between text-[10px] text-gray-500 -mt-2 font-mono px-0.5">
+                {/* TIEMPOS CORREGIDOS (Justify Between) */}
+                <div className="flex justify-between text-[10px] text-gray-500 font-mono w-full">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                 </div>
 
-                {/* Botones Compactos */}
+                {/* Controles */}
                 <div className="flex items-center justify-center gap-4">
-                    <button onClick={() => setCurrentTrackIndex((c) => c > 0 ? c - 1 : activePlaylist.tracks.length - 1)} className="text-gray-500 hover:text-white p-2">
-                        <SkipBack size={16} />
+                    <button onClick={() => setCurrentTrackIndex(c => c > 0 ? c - 1 : 0)} className="text-gray-500 hover:text-white"><SkipBack size={16}/></button>
+                    <button onClick={togglePlay} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-black hover:scale-105 transition-transform">
+                        {isPlaying ? <Pause size={14} fill="black"/> : <Play size={14} fill="black" className="ml-0.5"/>}
                     </button>
-                    
-                    <button 
-                        onClick={togglePlay} 
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-black hover:scale-105 transition-transform"
-                    >
-                        {isPlaying ? <Pause size={16} fill="black" /> : <Play size={16} fill="black" className="ml-0.5" />}
-                    </button>
-                    
-                    <button onClick={() => setCurrentTrackIndex((c) => c < activePlaylist.tracks.length - 1 ? c + 1 : 0)} className="text-gray-500 hover:text-white p-2">
-                        <SkipForward size={16} />
-                    </button>
+                    <button onClick={() => setCurrentTrackIndex(c => c < activePlaylist.tracks.length - 1 ? c + 1 : 0)} className="text-gray-500 hover:text-white"><SkipForward size={16}/></button>
                 </div>
 
                 {/* Volumen */}
-                <div className="flex items-center gap-2 pt-3 border-t border-gray-900/50">
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-900/50">
                     <Volume2 size={12} className="text-gray-600" />
-                    <input 
-                        type="range" min="0" max="1" step="0.05" value={volume}
-                        onChange={(e) => { setVolume(e.target.value); if(audioRef.current) audioRef.current.volume = e.target.value; }}
-                        className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-600"
-                    />
+                    <input type="range" min="0" max="1" step="0.05" value={volume} onChange={(e) => { setVolume(e.target.value); if(audioRef.current) audioRef.current.volume = e.target.value; }} className="w-full h-1 accent-amber-600" />
                 </div>
-            </div>
-            
-            {/* Descripción (Oculta en móviles para ahorrar espacio vertical) */}
-            <div className="hidden md:block mt-4 text-[10px] text-gray-700 leading-relaxed text-justify px-1 border-t border-gray-900/30 pt-2">
-                <p>"{activePlaylist.description}"</p>
             </div>
 
         </div>
