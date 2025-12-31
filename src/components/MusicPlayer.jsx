@@ -1,206 +1,216 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Search } from 'lucide-react';
-import playlistData from '../data/playlist.json'; // Asegúrate de que la ruta sea correcta
+import { Play, Pause, SkipBack, SkipForward, Volume2, Disc } from 'lucide-react';
+import playlistData from '../data/playlist.json';
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ playlistTitle, playlistCover, playlistDesc }) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [volume, setVolume] = useState(1);
-  const [progress, setProgress] = useState(0);
+  const [hoveredTrack, setHoveredTrack] = useState(null); 
+  
   const audioRef = useRef(null);
-
-  const filteredPlaylist = playlistData.filter(track => 
-    track.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    track.artist.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const progressBarRef = useRef(null);
 
   const currentTrack = playlistData[currentTrackIndex];
+  
+  // Lógica visual: Mostrar portada de canción (hover/play) o la portada de la playlist
+  const activeDisplayTrack = hoveredTrack || currentTrack;
+  // Nota: Si tus tracks en el JSON no tienen portada individual, 
+  // asegúrate de que 'track.cover' apunte a una imagen o fallback.
+  // Si no hay imagen de track, usamos la de la playlist.
+  const activeDisplayImage = activeDisplayTrack?.cover && activeDisplayTrack.cover !== "" 
+                             ? activeDisplayTrack.cover 
+                             : playlistCover;
 
   useEffect(() => {
     if (isPlaying) {
-      audioRef.current.play().catch(e => console.error("Error playback:", e));
+      audioRef.current.play().catch(e => console.error("Playback error:", e));
     }
   }, [currentTrackIndex]);
 
   const togglePlay = () => {
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
+    if (isPlaying) audioRef.current.pause();
+    else audioRef.current.play();
     setIsPlaying(!isPlaying);
   };
 
-  const playTrack = (originalIndex) => {
-    setCurrentTrackIndex(originalIndex);
-    setIsPlaying(true);
-  };
-
   const handleTimeUpdate = () => {
-    const current = audioRef.current.currentTime;
-    const duration = audioRef.current.duration;
-    setProgress((current / duration) * 100);
+    if (audioRef.current && progressBarRef.current) {
+      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      progressBarRef.current.style.width = `${progress}%`;
+    }
   };
 
-  const handleSeek = (e) => {
-    const width = e.target.clientWidth;
-    const clickX = e.nativeEvent.offsetX;
-    const duration = audioRef.current.duration;
-    audioRef.current.currentTime = (clickX / width) * duration;
+  const handleProgressClick = (e) => {
+    const timeline = e.currentTarget;
+    const clickPosition = (e.clientX - timeline.getBoundingClientRect().left) / timeline.offsetWidth;
+    audioRef.current.currentTime = clickPosition * audioRef.current.duration;
   };
 
-  const formatTime = (seconds) => {
-    if (!seconds) return "0:00";
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  const formatTime = (time) => {
+    if (isNaN(time)) return "00:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-[#1C1C1C] text-gray-300 font-sans border border-gray-800 rounded-lg overflow-hidden shadow-2xl">
+    <div className="w-full text-gray-200 font-serif relative">
       
-      {/* 1. CABECERA (Estilo MusicBee Hero) */}
-      <div className="relative h-48 bg-gradient-to-b from-gray-800 to-[#1C1C1C] p-6 flex items-end">
-        {/* Fondo decorativo difuminado */}
-        <div className="absolute inset-0 overflow-hidden opacity-20">
-           <img src="/images/default-cover.jpg" className="w-full h-full object-cover blur-xl" />
-        </div>
+      {/* Elemento de Audio Invisible */}
+      <audio 
+        ref={audioRef} 
+        src={currentTrack.src} 
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={() => {
+            if (currentTrackIndex < playlistData.length - 1) {
+                setCurrentTrackIndex(currentTrackIndex + 1);
+            } else {
+                setIsPlaying(false);
+            }
+        }}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
         
-        <div className="relative z-10 flex items-center w-full gap-6">
-          <div className="w-32 h-32 bg-black shadow-lg flex-shrink-0">
-             {/* Aquí iría la portada real si la tuviéramos */}
-             <div className="w-full h-full bg-gray-700 flex items-center justify-center text-4xl text-gray-500">♪</div>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">{currentTrack.title}</h1>
-            <p className="text-xl text-amber-500 mt-1">{currentTrack.artist}</p>
-            <p className="text-sm text-gray-400 mt-1">{currentTrack.album}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. BARRA DE HERRAMIENTAS Y BUSCADOR */}
-      <div className="px-4 py-2 border-b border-gray-800 bg-[#252525] flex justify-between items-center">
-        <div className="flex items-center bg-[#1C1C1C] border border-gray-700 rounded px-2 py-1 w-64">
-            <Search size={16} className="text-gray-500 mr-2" />
-            <input 
-                type="text" 
-                placeholder="Buscar..." 
-                className="bg-transparent border-none focus:outline-none text-sm w-full text-white"
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
-        <div className="text-xs text-gray-500">
-            {filteredPlaylist.length} tracks
-        </div>
-      </div>
-
-      {/* 3. LISTA DE CANCIONES (Scrollable) */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-[#252525] text-gray-500 sticky top-0 z-10">
-            <tr>
-              <th className="p-2 w-10 text-center">#</th>
-              <th className="p-2">Title</th>
-              <th className="p-2">Artist</th>
-              <th className="p-2">Album</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlaylist.map((track, i) => {
-               // Encontramos el índice real en la lista completa para poder reproducirla
-               const originalIndex = playlistData.findIndex(t => t.id === track.id);
-               const isCurrent = currentTrack.id === track.id;
-               
-               return (
-                <tr 
-                    key={track.id} 
-                    onClick={() => playTrack(originalIndex)}
-                    className={`border-b border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors ${isCurrent ? 'bg-gray-800 text-amber-500 font-medium' : 'text-gray-400'}`}
-                >
-                    <td className="p-2 text-center">
-                        {isCurrent && isPlaying ? '▶' : originalIndex + 1}
-                    </td>
-                    <td className="p-2 truncate max-w-[200px]">{track.title}</td>
-                    <td className="p-2 truncate max-w-[150px]">{track.artist}</td>
-                    <td className="p-2 truncate max-w-[150px] opacity-70">{track.album}</td>
-                </tr>
-               );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 4. REPRODUCTOR (Bottom Bar) */}
-      <div className="h-20 bg-[#151515] border-t border-gray-800 flex flex-col justify-center px-4 relative">
-        {/* Barra de Progreso */}
-        <div 
-            className="absolute top-0 left-0 w-full h-1 bg-gray-800 cursor-pointer group"
-            onClick={handleSeek}
-        >
-            <div 
-                className="h-full bg-amber-600 transition-all duration-100 relative" 
-                style={{ width: `${progress}%` }}
-            >
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow" />
-            </div>
-        </div>
-
-        <div className="flex items-center justify-between mt-2">
-            {/* Controles Izquierda */}
-            <div className="flex items-center gap-4">
-                <button 
-                    onClick={() => playTrack((currentTrackIndex - 1 + playlistData.length) % playlistData.length)}
-                    className="text-gray-400 hover:text-white"
-                >
-                    <SkipBack size={20} />
-                </button>
-                <button 
-                    onClick={togglePlay} 
-                    className="w-10 h-10 flex items-center justify-center bg-gray-200 text-black rounded-full hover:scale-105 transition"
-                >
-                    {isPlaying ? <Pause size={20} fill="black" /> : <Play size={20} fill="black" className="ml-1"/>}
-                </button>
-                <button 
-                    onClick={() => playTrack((currentTrackIndex + 1) % playlistData.length)}
-                    className="text-gray-400 hover:text-white"
-                >
-                    <SkipForward size={20} />
-                </button>
+        {/* --- COLUMNA IZQUIERDA: Contexto Visual y Editorial --- */}
+        <div className="lg:col-span-5 relative">
+            <div className="lg:sticky lg:top-24 space-y-8">
                 
-                <span className="text-xs font-mono text-gray-500 ml-2">
-                    {audioRef.current && formatTime(audioRef.current.currentTime)} / {audioRef.current && !isNaN(audioRef.current.duration) ? formatTime(audioRef.current.duration) : "--:--"}
-                </span>
-            </div>
+                {/* Marco de Imagen */}
+                <div className="relative aspect-square w-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-[#0a0a0a]">
+                    <img 
+                        src={activeDisplayImage} 
+                        alt="Album Art"
+                        className="w-full h-full object-cover opacity-90 transition-opacity duration-500"
+                    />
+                    {/* Borde sutil interno */}
+                    <div className="absolute inset-0 border border-white/5 pointer-events-none"></div>
+                </div>
 
-            {/* Info Central (Mini) */}
-            <div className="hidden md:flex flex-col items-center">
-                <span className="text-sm text-gray-300">{currentTrack.title}</span>
-            </div>
+                {/* Info Editorial */}
+                <div className="space-y-6">
+                    {/* Indicador de estado */}
+                    <div className="flex items-center gap-2 text-amber-600 text-xs font-mono uppercase tracking-widest">
+                        <Disc size={12} className={isPlaying ? "animate-spin-slow" : ""} />
+                        <span>{hoveredTrack ? "Preview" : (isPlaying ? "Now Spinning" : "Collection")}</span>
+                    </div>
+                    
+                    {/* Título Dinámico: Muestra título de canción o título de playlist */}
+                    <div>
+                        <h2 className="text-3xl lg:text-4xl font-light italic leading-tight text-white transition-all duration-300">
+                            {activeDisplayTrack && (isPlaying || hoveredTrack) ? activeDisplayTrack.title : playlistTitle}
+                        </h2>
+                        <p className="text-lg text-gray-400 font-sans font-light mt-2">
+                             {activeDisplayTrack && (isPlaying || hoveredTrack) ? activeDisplayTrack.artist : "Jose Shōta Curated"}
+                        </p>
+                    </div>
 
-            {/* Volumen Derecha */}
-            <div className="flex items-center gap-2 w-32">
-                <Volume2 size={16} className="text-gray-500" />
-                <input 
-                    type="range" 
-                    min="0" max="1" step="0.05" 
-                    value={volume}
-                    onChange={(e) => {
-                        setVolume(e.target.value);
-                        audioRef.current.volume = e.target.value;
-                    }}
-                    className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                />
+                    <div className="w-12 h-[1px] bg-gray-800"></div>
+
+                    {/* Tu Descripción Original (Siempre visible si no hay canción seleccionada, o fija abajo) */}
+                    <div className={`text-sm text-gray-500 font-sans leading-relaxed text-justify transition-opacity duration-500 ${isPlaying || hoveredTrack ? 'opacity-50' : 'opacity-100'}`}>
+                        {playlistDesc}
+                    </div>
+                </div>
             </div>
         </div>
 
-        <audio 
-          ref={audioRef} 
-          src={currentTrack.src} 
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={() => playTrack((currentTrackIndex + 1) % playlistData.length)}
-        />
+        {/* --- COLUMNA DERECHA: La Lista (Clean) --- */}
+        <div className="lg:col-span-7 mt-8 lg:mt-0">
+            <div className="flex flex-col space-y-1">
+                {playlistData.map((track, index) => {
+                    const isCurrent = currentTrack.id === track.id;
+                    return (
+                        <div 
+                            key={track.id}
+                            onClick={() => {
+                                setCurrentTrackIndex(index);
+                                setIsPlaying(true);
+                            }}
+                            onMouseEnter={() => setHoveredTrack(track)}
+                            onMouseLeave={() => setHoveredTrack(null)}
+                            // Clases para el efecto "Foco":
+                            className={`
+                                group relative py-5 px-4 cursor-pointer transition-all duration-500 border-b border-gray-900
+                                ${isCurrent 
+                                    ? 'bg-white/5 opacity-100 pl-6 border-l-2 border-l-amber-600' 
+                                    : 'opacity-50 hover:opacity-100 hover:pl-6 hover:bg-white/[0.02] border-l-2 border-l-transparent'
+                                }
+                            `}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className={`text-lg font-medium tracking-wide transition-colors ${isCurrent ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}>
+                                        {track.title}
+                                    </h3>
+                                    <div className="flex items-center gap-3 mt-1">
+                                        <span className="text-xs font-sans text-gray-500 uppercase tracking-wider">
+                                            {track.artist}
+                                        </span>
+                                        {/* Mostramos el álbum solo si es la actual o hover */}
+                                        <span className={`text-xs font-mono text-gray-600 transition-opacity duration-300 ${isCurrent || hoveredTrack === track ? 'opacity-100' : 'opacity-0'}`}>
+                                            — {track.album}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div className="font-mono text-xs text-gray-600 group-hover:text-gray-400">
+                                    {isCurrent && isPlaying ? <span className="text-amber-600">PLAYING</span> : (track.duration || "00:00")}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+
+      </div>
+
+      {/* --- PLAYER CONTROL FOOTER (Sticky Bottom) --- */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#050505] border-t border-gray-900 z-50">
+          
+          {/* Barra de progreso */}
+          <div 
+            className="w-full h-[3px] bg-gray-900 cursor-pointer group hover:h-[5px] transition-all"
+            onClick={handleProgressClick}
+          >
+              <div ref={progressBarRef} className="h-full bg-amber-600 w-0 relative"></div>
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between font-mono text-xs">
+              
+              {/* Track Info (Footer) */}
+              <div className="flex items-center gap-4 w-1/3">
+                 <div className="hidden sm:block w-2 h-2 rounded-full bg-amber-600 animate-pulse"></div>
+                 <div className="flex flex-col">
+                    <span className="text-gray-200 uppercase tracking-widest truncate max-w-[150px]">{currentTrack.title}</span>
+                    <span className="text-gray-600 truncate max-w-[150px]">{currentTrack.artist}</span>
+                 </div>
+              </div>
+
+              {/* Controles */}
+              <div className="flex items-center justify-center gap-6 w-1/3">
+                  <button onClick={() => setCurrentTrackIndex((c) => c > 0 ? c - 1 : playlistData.length - 1)} className="hover:text-white text-gray-600 transition-colors"><SkipBack size={18} /></button>
+                  <button onClick={togglePlay} className="hover:scale-110 transition-transform text-white">
+                      {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                  </button>
+                  <button onClick={() => setCurrentTrackIndex((c) => c < playlistData.length - 1 ? c + 1 : 0)} className="hover:text-white text-gray-600 transition-colors"><SkipForward size={18} /></button>
+              </div>
+
+              {/* Volumen */}
+              <div className="flex items-center justify-end gap-3 w-1/3">
+                  <Volume2 size={14} className="text-gray-600" />
+                  <input 
+                      type="range" min="0" max="1" step="0.05" value={volume}
+                      onChange={(e) => { setVolume(e.target.value); audioRef.current.volume = e.target.value; }}
+                      className="w-20 h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                  />
+                  <span className="w-10 text-right text-gray-600">
+                    {audioRef.current && !isNaN(audioRef.current.duration) ? formatTime(audioRef.current.currentTime) : "0:00"}
+                  </span>
+              </div>
+          </div>
       </div>
     </div>
   );
