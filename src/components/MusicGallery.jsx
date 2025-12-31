@@ -21,6 +21,8 @@ export default function MusicGallery() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   
   const audioRef = useRef(null);
   const progressBarRef = useRef(null);
@@ -29,20 +31,22 @@ export default function MusicGallery() {
   const currentTrack = activePlaylist ? activePlaylist.tracks[currentTrackIndex] : null;
 
   useEffect(() => {
-    if (isPlaying && audioRef.current) {
-      audioRef.current.play().catch(e => console.error("Playback error:", e));
-    }
-  }, [currentTrackIndex, activePlaylist]);
+    const el = audioRef.current;
+    if (!el) return;
+    el.volume = volume;
+    if (isPlaying) el.play().catch(e => console.error("Playback error:", e));
+    else el.pause();
+    }, [isPlaying, currentTrackIndex, activePlaylist, volume]);
 
-  const togglePlay = () => {
-    if (isPlaying) audioRef.current.pause();
-    else audioRef.current.play();
-    setIsPlaying(!isPlaying);
-  };
+  const togglePlay = () => setIsPlaying(p => !p);
 
   const handleTimeUpdate = () => {
     if (audioRef.current && progressBarRef.current) {
-      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      const ct = audioRef.current.currentTime || 0;
+      const dur = audioRef.current.duration || 0;
+      setCurrentTime(ct);
+      setDuration(dur);
+      const progress = dur ? (ct / dur) * 100 : 0;
       progressBarRef.current.style.width = `${progress}%`;
     }
   };
@@ -112,12 +116,19 @@ export default function MusicGallery() {
         ref={audioRef} 
         src={currentTrack?.src} 
         onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={() => {
+          const dur = audioRef.current?.duration || 0;
+          setDuration(dur);
+          setCurrentTime(0);
+          if (progressBarRef.current) progressBarRef.current.style.width = `0%`;
+        }}
         onEnded={() => {
-            if (currentTrackIndex < activePlaylist.tracks.length - 1) {
-                setCurrentTrackIndex(currentTrackIndex + 1);
-            } else {
-                setIsPlaying(false);
-            }
+          setCurrentTrackIndex((i) => {
+            const last = activePlaylist.tracks.length - 1;
+            if (i < last) return i + 1;
+            setIsPlaying(false);
+            return i;
+          });
         }}
       />
 
@@ -130,17 +141,20 @@ export default function MusicGallery() {
       </button>
 
       {/* LAYOUT PRINCIPAL: Dos Columnas */}
-      <div className="flex flex-col lg:flex-row gap-12 items-start relative">
+      <div className="flex flex-row gap-8 items-start relative">
         
         {/* COLUMNA 1: LISTA DE CANCIONES (TABLA ORGANIZADA) */}
-        <div className="flex-1 w-full order-2 lg:order-1">
+        <div className="flex-1 min-w-0">
+          {/* Scroll horizontal SOLO para la tabla (sin afectar sticky del player) */}
+          <div className="overflow-x-auto">
+            <div className="min-w-[860px]">
             
             {/* Encabezado de la Tabla (Headers) */}
-            <div className="grid grid-cols-[30px_1.5fr_1fr_1fr_40px] gap-4 px-4 pb-2 mb-2 border-b border-gray-800 text-[10px] font-mono text-gray-600 uppercase tracking-widest sticky top-0 bg-[#050505] z-10">
+            <div className="grid grid-cols-[30px_minmax(260px,2fr)_minmax(220px,1.2fr)_minmax(260px,1.6fr)_60px] gap-4 px-4 pb-2 mb-2 border-b border-gray-800 text-[10px] font-mono text-gray-600 uppercase tracking-widest bg-[#050505] whitespace-nowrap">
                 <div className="text-center">#</div>
                 <div>Title</div>
                 <div>Artist</div>
-                <div className="hidden md:block">Album</div>
+                <div>Album</div>
                 <div className="text-right">Time</div>
             </div>
 
@@ -156,7 +170,7 @@ export default function MusicGallery() {
                             }}
                             // Grid alineado exactamente igual que el header
                             className={`
-                                group grid grid-cols-[30px_1.5fr_1fr_1fr_40px] gap-4 items-center py-4 px-4 cursor-pointer transition-all duration-200 border-b border-gray-900/50 hover:bg-white/5
+                                group grid grid-cols-[30px_minmax(260px,2fr)_minmax(220px,1.2fr)_minmax(260px,1.6fr)_60px] gap-4 items-center py-4 px-4 cursor-pointer transition-all duration-200 border-b border-gray-900/50 hover:bg-white/5 whitespace-nowrap
                                 ${isCurrent ? 'bg-white/5 border-l-2 border-l-amber-500 pl-[14px]' : 'border-l-2 border-l-transparent'}
                             `}
                         >
@@ -166,17 +180,17 @@ export default function MusicGallery() {
                             </div>
                             
                             {/* Title */}
-                            <div className={`text-sm font-medium truncate ${isCurrent ? 'text-amber-500' : 'text-gray-200 group-hover:text-white'}`}>
+                            <div className={`text-sm font-medium ${isCurrent ? 'text-amber-500' : 'text-gray-200 group-hover:text-white'}`}>
                                 {track.title}
                             </div>
                             
                             {/* Artist */}
-                            <div className="text-xs text-gray-500 truncate group-hover:text-gray-400">
+                            <div className="text-xs text-gray-500 group-hover:text-gray-400">
                                 {track.artist}
                             </div>
                             
-                            {/* Album (Oculto en móvil) */}
-                            <div className="hidden md:block text-xs text-gray-600 truncate group-hover:text-gray-500">
+                            {/* Album*/}
+                            <div className="text-xs text-gray-600 group-hover:text-gray-500">
                                 {track.album}
                             </div>
                             
@@ -188,11 +202,12 @@ export default function MusicGallery() {
                     );
                 })}
             </div>
+            </div>
+          </div>
         </div>
 
         {/* COLUMNA 2: REPRODUCTOR FIJO (STICKY SIDEBAR) */}
-        {/* El truco del sticky: width fijo + h-fit + sticky + top */}
-        <div className="w-full lg:w-[380px] flex-shrink-0 order-1 lg:order-2 lg:sticky lg:top-8 bg-[#0a0a0a] border border-gray-800 p-6 shadow-2xl">
+        <div className="w-[clamp(260px,35vw,380px)] flex-shrink-0 sticky top-8 bg-[#0a0a0a] border border-gray-800 p-6 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
             
             {/* Portada Activa */}
             <div className="aspect-square w-full bg-black mb-6 relative overflow-hidden border border-gray-900">
@@ -204,11 +219,11 @@ export default function MusicGallery() {
             </div>
 
             {/* Info del Track Sonando */}
-            <div className="text-center mb-8">
-                <h2 className="text-xl font-serif text-white leading-tight mb-1">
+            <div className="text-center mb-8 overflow-x-auto">
+              <h2 className="text-xl font-serif text-white leading-tight mb-1 whitespace-nowrap w-max mx-auto">
                     {currentTrack ? currentTrack.title : "Selecciona un track"}
                 </h2>
-                <p className="text-xs font-mono text-amber-600 uppercase tracking-widest">
+                <p className="text-xs font-mono text-amber-600 uppercase tracking-widest whitespace-nowrap w-max mx-auto">
                     {currentTrack ? currentTrack.artist : "Waiting..."}
                 </p>
             </div>
@@ -227,8 +242,8 @@ export default function MusicGallery() {
                         </div>
                     </div>
                     <div className="flex justify-between text-[10px] font-mono text-gray-600 mt-2">
-                        <span>{audioRef.current && formatTime(audioRef.current.currentTime)}</span>
-                        <span>{audioRef.current && !isNaN(audioRef.current.duration) ? formatTime(audioRef.current.duration) : "00:00"}</span>
+                        <span>{formatTime(currentTime)}</span>
+                        <span>{duration ? formatTime(duration) : "00:00"}</span>
                     </div>
                 </div>
 
@@ -255,7 +270,7 @@ export default function MusicGallery() {
                     <Volume2 size={14} className="text-gray-600" />
                     <input 
                         type="range" min="0" max="1" step="0.05" value={volume}
-                        onChange={(e) => { setVolume(e.target.value); audioRef.current.volume = e.target.value; }}
+                        onChange={(e) => setVolume(parseFloat(e.target.value))}
                         className="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-amber-600"
                     />
                 </div>

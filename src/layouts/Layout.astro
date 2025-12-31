@@ -2,7 +2,7 @@
 // 1. Borramos la importación de 'utils' que no existe y dejamos solo 'ui'
 import { ui, defaultLang } from '../i18n/ui';
 
-const { title = "Digital Garden / Archivo Personal" } = Astro.props;
+const { title = "Digital Garden / Archivo Personal", fullWidth = false, hideHeader = false } = Astro.props;
 
 // Detectar el idioma actual basado en la URL
 const lang = Astro.currentLocale || defaultLang;
@@ -59,6 +59,11 @@ function getLangSwitchPath(targetLang) {
         padding: 2rem;
         line-height: 1.6;
       }
+      body.fullWidth {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
       header { margin-bottom: 3rem; }
       
       h1 { 
@@ -81,7 +86,8 @@ function getLangSwitchPath(targetLang) {
     </style>
   </head>
   
-  <body>
+  <body class={fullWidth ? "fullWidth" : ""}>
+    {!hideHeader && (
     <header>
       <div class="lang-switch">
         <a href={getLangSwitchPath('es')}>ES</a> / <a href={getLangSwitchPath('en')}>EN</a>
@@ -96,6 +102,7 @@ function getLangSwitchPath(targetLang) {
         <a href={getPath('/cv')}>{t('nav.cv')}</a>
       </nav>
     </header>
+    )}
 
     <main>
         <slot />
