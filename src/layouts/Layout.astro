@@ -1,26 +1,35 @@
 ---
+// 1. Borramos la importación de 'utils' que no existe y dejamos solo 'ui'
 import { ui, defaultLang } from '../i18n/ui';
 
-// Recibimos una nueva prop: 'fullWidth'
-// Si es true, el layout ocupará el 100% de la pantalla (ideal para la app de música)
-const { title = "Digital Garden / Archivo Personal", fullWidth = false } = Astro.props;
+const { title = "Digital Garden / Archivo Personal" } = Astro.props;
 
+// Detectar el idioma actual basado en la URL
 const lang = Astro.currentLocale || defaultLang;
 
+// Función para obtener las traducciones
 function t(key) {
   return ui[lang][key] || ui[defaultLang][key];
 }
 
+// === LÓGICA DE RUTAS (CORREGIDA) ===
+// Obtenemos la ruta base (ej: "/Jose-Shotas-Blog") y quitamos la barra final si la tiene
 const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 function getPath(path) {
+    // Si es inglés, agregamos /en
     const langPath = lang === 'en' ? '/en' : '';
+    // Construimos: /Nombre-Repo + /en (opcional) + /musica
     return `${baseUrl}${langPath}${path}`;
 }
 
+// Función especial para el switch de idiomas (Header)
 function getLangSwitchPath(targetLang) {
     const langPrefix = targetLang === 'en' ? '/en' : '';
+    // Si la base es vacía (desarrollo local) y queremos ir al home español, devolvemos "/"
     if (baseUrl === '' && targetLang === 'es') return '/';
+    
+    // Retorna "/Jose-Shotas-Blog" (para ES) o "/Jose-Shotas-Blog/en" (para EN)
     return `${baseUrl}${langPrefix}` || '/'; 
 }
 ---
@@ -29,38 +38,29 @@ function getLangSwitchPath(targetLang) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
     <link rel="icon" type="image/svg+xml" href={`${baseUrl}/favicon.svg`} />
+    
     <title>{title}</title>
     
-    <style define:vars={{ fullWidth }}>
+    <style>
       :root {
         --color-bg: #111111;
         --color-text-light: #dddddd;
         --color-text-accent: #666666;
         --font-mono: 'Courier New', Courier, monospace;
       }
-
       body {
         background-color: var(--color-bg);
         color: var(--color-text-light);
         font-family: var(--font-mono);
-        /* ELIMINADO: max-width, margin y padding del body */
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      /* Esta clase simula tu layout original de blog (centrado y contenido) */
-      .containered {
         max-width: 800px;
         margin: 0 auto;
         padding: 2rem;
-        width: 100%;
-        box-sizing: border-box;
+        line-height: 1.6;
       }
-
-      /* Estilos generales */
+      header { margin-bottom: 3rem; }
+      
       h1 { 
         font-weight: normal; 
         border-bottom: 1px solid var(--color-text-accent); 
@@ -73,42 +73,33 @@ function getLangSwitchPath(targetLang) {
       }
       a:hover { color: var(--color-text-light); }
       
+      /* Estilo del selector de idioma */
       .lang-switch { 
         float: right; 
         font-size: 0.8em; 
       }
-
-      /* Ocultar el Header global si estamos en modo fullWidth (opcional, quita esto si quieres el menú siempre) */
-      /* .header-global { display: var(--display-header); } */
     </style>
   </head>
   
   <body>
-    <div class={fullWidth ? "" : "containered"}>
-        
-        {/* Renderizamos el header global solo si NO es fullWidth, 
-            ya que tu página de música tiene su propia navegación */}
-        {!fullWidth && (
-            <header>
-            <div class="lang-switch">
-                <a href={getLangSwitchPath('es')}>ES</a> / <a href={getLangSwitchPath('en')}>EN</a>
-            </div>
+    <header>
+      <div class="lang-switch">
+        <a href={getLangSwitchPath('es')}>ES</a> / <a href={getLangSwitchPath('en')}>EN</a>
+      </div>
 
-            <h1>{title}</h1>
-            
-            <nav>
-                <a href={getPath('/')}>{t('nav.home')}</a>
-                <a href={getPath('/musica')}>{t('nav.music')}</a>
-                <a href={getPath('/videos')}>{t('nav.videos')}</a>
-                <a href={getPath('/cv')}>{t('nav.cv')}</a>
-            </nav>
-            </header>
-        )}
+      <h1>{title}</h1>
+      
+      <nav>
+        <a href={getPath('/')}>{t('nav.home')}</a>
+        <a href={getPath('/musica')}>{t('nav.music')}</a>
+        <a href={getPath('/videos')}>{t('nav.videos')}</a>
+        <a href={getPath('/cv')}>{t('nav.cv')}</a>
+      </nav>
+    </header>
 
-        <main>
-            <slot />
-        </main>
+    <main>
+        <slot />
+    </main>
 
-    </div>
   </body>
 </html>
