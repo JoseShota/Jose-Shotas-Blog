@@ -1,37 +1,38 @@
 ---
 import BaseLayout from '../layouts/Layout.astro';
-import MusicPlayer from '../components/MusicPlayer.jsx';
+import MusicGallery from '../components/MusicGallery.jsx';
 
-// TEXTOS ORIGINALES (Respetados)
-const pageTitle = "Canciones para cuando muera y transcienda";
-const description = "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar ¿Qué canción elegirías de fondo? Una selección de Jose Shōta.";
-
-// Imagen por defecto para la playlist (aparece cuando no hay hover en canciones)
-// Puedes cambiar esta ruta por la imagen que quieras usar de portada principal.
-const defaultCover = "/images/default-cover.jpg"; 
+const pageTitle = "Curaduría Musical";
 ---
 
 <BaseLayout title={pageTitle}>
   <div class="min-h-screen bg-[#050505] text-gray-300 font-sans selection:bg-amber-900 selection:text-white">
     
-    {/* Navegación sutil */}
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    {/* Navegación Simple */}
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
       <a href="/" class="text-xs font-mono text-gray-600 hover:text-amber-600 transition-colors uppercase tracking-widest">
         ← Jose Shōta / Index
       </a>
-      <span class="hidden md:block text-xs font-mono text-gray-700 uppercase tracking-widest">
-        Curaduría Musical
+      <span class="text-xs font-mono text-gray-500 uppercase tracking-widest border border-gray-800 px-3 py-1 rounded-full">
+        Hi-Fi Archives
       </span>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-      {/* Pasamos tus textos originales como props al componente */}
-      <MusicPlayer 
-        client:load 
-        playlistTitle={pageTitle}
-        playlistDesc={description}
-        playlistCover={defaultCover} 
-      />
+      
+      {/* Encabezado General de la Sección */}
+      <header class="mb-16 border-b border-gray-900 pb-8">
+        <h1 class="text-3xl font-light text-white mb-2 tracking-wide">
+          {pageTitle}
+        </h1>
+        <p class="text-gray-500 text-sm max-w-2xl font-serif italic">
+          Colección personal de paisajes sonoros. Selecciona un registro para comenzar la reproducción.
+        </p>
+      </header>
+
+      {/* Aquí cargamos la Galería Interactiva */}
+      <MusicGallery client:load />
+
     </main>
 
   </div>
