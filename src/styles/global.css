@@ -1,1 +1,37 @@
 @import "tailwindcss";
+
+/* --- Animaciones que estás usando en JSX --- */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 420ms ease-out both; }
+
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 4.5s linear infinite; }
+
+/* --- Utilidades "Cueva" (usan tus CSS vars del Layout.astro) --- */
+.cueva-mono { font-family: var(--font-mono); }
+
+.cueva-text  { color: var(--color-text-light); }
+.cueva-muted { color: var(--color-text-accent); }
+.cueva-accent { color: var(--color-highlight); }
+
+.cueva-card {
+  background: rgba(0,0,0,0.55);
+  border: 1px solid var(--color-text-accent);
+}
+.cueva-card:hover { border-color: var(--color-highlight); }
+
+.cueva-card:hover .cueva-title { color: var(--color-highlight); }
+
+.cueva-progress { background: var(--color-highlight); }
+.cueva-range { accent-color: var(--color-highlight); }
+
+/* Clamp simple para descripciones largas en hover */
+.cueva-clamp-4{
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
