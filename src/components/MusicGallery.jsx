@@ -7,7 +7,7 @@ const COLLECTIONS = [
   {
     id: 'vol1',
     title: "Canciones para cuando muera y transcienda",
-    description: "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo?",
+    description: "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo? Una selección de Jose Shota",
     cover: "/images/playlist-cover-v1.jpg", 
     tracks: playlistData, 
     totalDuration: "1h 14m", 
