@@ -40,15 +40,27 @@ function getLangSwitchPath(targetLang) {
         --color-highlight: #d97706; /* Un toque ámbar para resaltar */
         --font-mono: 'Courier New', Courier, monospace;
       }
+      
       body {
         background-color: var(--color-bg);
         color: var(--color-text-light);
         font-family: var(--font-mono);
-        max-width: 1200px; /* Ancho de lectura clásico */
-        margin: 0 auto;
-        padding: 2rem;
+  
+       
+        width: 100%;             /* Ocupa todo el ancho posible */
+        max-width: 1400px;       /* Tope máximo para pantallas gigantes (puedes borrarlo si quieres 100% real) */
+        margin: 0 auto;          /* Centra el contenido si la pantalla es mayor a 1400px */
+        padding: 1rem;           /* Margen interno pequeño para celulares */
+        box-sizing: border-box;  /* Asegura que el padding no rompa el ancho */
         line-height: 1.6;
       }
+
+/* === AJUSTE PARA PANTALLAS GRANDES (Laptop/Desktop) === */
+@media (min-width: 768px) {
+  body {
+    padding: 3rem; /* Más aire en pantallas grandes */
+  }
+}
       body.fullWidth {
         max-width: none;
         margin: 0;
