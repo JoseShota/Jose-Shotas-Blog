@@ -31,6 +31,10 @@ export default function MusicGallery() {
 
   const currentTrack = activePlaylist ? activePlaylist.tracks[currentTrackIndex] : null;
 
+  const displayCover = currentTrack?.cover && currentTrack.cover !== "" 
+    ? currentTrack.cover 
+    : activePlaylist?.cover;
+
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
@@ -294,7 +298,7 @@ export default function MusicGallery() {
                style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
             <img
-              src={activePlaylist.cover}
+              src={displayCover}
               alt="Now Playing Cover"
               className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'scale-100 opacity-100 grayscale-0' : 'scale-105 opacity-60 grayscale'}`}
             />
@@ -384,7 +388,7 @@ export default function MusicGallery() {
             {/* Info Izquierda */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <img 
-                src={activePlaylist.cover} 
+                src={displayCover} 
                 alt="cover" 
                 className={`w-10 h-10 object-cover border border-white/10 ${isPlaying ? 'grayscale-0' : 'grayscale'}`} 
               />
