@@ -135,7 +135,7 @@ export default function MusicGallery() {
 
   // --- VISTA 2: INTERIOR DE LA PLAYLIST (Split View) ---
   return (
-    <div className="cueva-mono animate-fade-in relative">
+    <div className="cueva-mono relative">
 
       <audio
         ref={audioRef}
@@ -156,6 +156,9 @@ export default function MusicGallery() {
           });
         }}
       />
+
+      {/* 2. CREAMOS ESTE DIV PARA LA ANIMACIÓN (Envuelve todo el contenido visual principal) */}
+      <div className="animate-fade-in"></div>
 
       {/* Botón Volver */}
       <button
