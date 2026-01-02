@@ -185,7 +185,7 @@ export default function MusicGallery() {
 
               {/* Encabezado */}
               <div
-                className="grid grid-cols-[30px_minmax(260px,2fr)_minmax(220px,1.2fr)_minmax(260px,1.6fr)_60px] gap-4 px-4 pb-2 mb-2 border-b text-[10px] uppercase tracking-widest whitespace-nowrap"
+                className="grid grid-cols-[35px_minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)_50px] gap-4 px-4 pb-2 mb-2 border-b text-[10px] uppercase tracking-widest"
                 style={{
                   background: 'rgba(0,0,0,0.35)',
                   borderColor: 'var(--color-text-accent)',
@@ -211,10 +211,10 @@ export default function MusicGallery() {
                         setIsPlaying(true);
                       }}
                       className={`
-                        group grid grid-cols-[30px_minmax(260px,2fr)_minmax(220px,1.2fr)_minmax(260px,1.6fr)_60px]
-                        gap-4 items-center py-4 px-4 cursor-pointer transition-all duration-200 border-b whitespace-nowrap
-                        hover:bg-white/5
-                        ${isCurrent ? 'bg-white/5 pl-[14px]' : ''}
+                                  group grid grid-cols-[35px_minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)_50px]
+                                  gap-4 items-center py-4 px-4 cursor-pointer transition-all duration-200 border-b
+                                  hover:bg-white/5
+                                  ${isCurrent ? 'bg-white/5 pl-[14px]' : ''}
                       `}
                       style={{
                         borderBottomColor: 'rgba(255,255,255,0.06)',
@@ -223,33 +223,35 @@ export default function MusicGallery() {
                         borderLeftColor: isCurrent ? ACCENT : 'transparent'
                       }}
                     >
-                      {/* # */}
-                      <div className="text-[10px] text-center cueva-muted group-hover:cueva-text">
+                      {/* # (Sin cambios mayores, solo centrado) */}
+                      <div className="text-[10px] text-center cueva-muted group-hover:cueva-text flex justify-center">
                         {isCurrent
-                          ? <Disc size={12} className={isPlaying ? "animate-spin-slow" : ""} style={{ color: ACCENT }} />
-                          : (index + 1).toString().padStart(2, '0')
+                        ? <Disc size={12} className={isPlaying ? "animate-spin-slow" : ""} style={{ color: ACCENT }} />
+                        : (index + 1).toString().padStart(2, '0')
                         }
                       </div>
 
                       {/* Title */}
+                      {/* CAMBIO 3: Lógica de texto. 'truncate' corta con (...). 'group-hover:whitespace-normal' permite múltiples líneas. */}
                       <div
-                        className={`text-sm ${isCurrent ? '' : 'cueva-text group-hover:text-white'}`}
+                        className={`text-sm truncate group-hover:whitespace-normal group-hover:overflow-visible ${isCurrent ? '' : 'cueva-text group-hover:text-white'}`}
                         style={isCurrent ? { color: ACCENT } : undefined}
+                        title={track.title} // Tooltip nativo extra por si acaso
                       >
                         {track.title}
                       </div>
 
                       {/* Artist */}
-                      <div className="text-xs cueva-muted group-hover:opacity-90">
+                      <div className="text-xs cueva-muted group-hover:opacity-90 truncate group-hover:whitespace-normal group-hover:overflow-visible">
                         {track.artist}
                       </div>
 
                       {/* Album */}
-                      <div className="text-xs cueva-muted opacity-80 group-hover:opacity-100">
+                      <div className="text-xs cueva-muted opacity-80 group-hover:opacity-100 truncate group-hover:whitespace-normal group-hover:overflow-visible">
                         {track.album}
                       </div>
 
-                      {/* Duration */}
+                      {/* Duration (Sin cambios de truncate, suele ser corto) */}
                       <div className="text-[10px] text-right cueva-muted">
                         {track.duration || "--:--"}
                       </div>
