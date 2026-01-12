@@ -195,12 +195,14 @@ export default function MusicGallery() {
               <div
                 className="hidden md:grid grid-cols-[35px_minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)_50px] gap-4 px-4 pb-2 mb-2 border-b text-[10px] uppercase tracking-widest"
                 style={{
-                  background: 'rgba(0,0,0,0.35)',
-                  borderColor: 'var(--color-text-accent)',
-                  color: 'var(--color-text-accent)'
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  color: 'var(--color-text-accent)',
+                  opacity: 0.8
                 }}
               >
-                <div className="text-center">#</div>
+                <div className="text-center opacity-50">#</div>
                 <div>Title</div>
                 <div>Artist</div>
                 <div>Album</div>
