@@ -1,0 +1,179 @@
+---
+import videos from '../data/videos.json';
+
+// Configuration
+const Z_SPACING = 800; // Distance between videos (depth)
+const X_OFFSET = 350;  // How far left/right from center the videos are
+---
+
+<div class="hall-container">
+  <div class="hall-scene" id="hallScene">
+    
+    <div class="floor-grid"></div>
+
+    {videos.map((video, index) => {
+      // Calculate 3D position
+      const zPos = index * -Z_SPACING; 
+      const xPos = index % 2 === 0 ? X_OFFSET : -X_OFFSET; // Alternate Left/Right
+      const rotationY = index % 2 === 0 ? -15 : 15; // Slight angle towards viewer
+
+      return (
+        <div 
+          class="video-frame"
+          style={`transform: translate3d(${xPos}px, 0, ${zPos}px) rotateY(${rotationY}deg);`}
+        >
+          <div class="video-wrapper">
+             <iframe 
+                src={`https://www.youtube.com/embed/${video.id}`} 
+                title={video.title} 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+             ></iframe>
+          </div>
+          <div class="video-meta">
+            <span class="index-marker">No. 0{index + 1}</span>
+            <h3>{video.title}</h3>
+            <p class="cueva-muted">{video.desc}</p>
+          </div>
+        </div>
+      );
+    })}
+    
+    <div class="end-marker" style={`transform: translate3d(0, 0, ${(videos.length * -Z_SPACING) - 500}px)`}>
+      [ END OF ARCHIVE ]
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Script to map Scroll Y -> Translate Z
+  const scene = document.getElementById('hallScene');
+  const speedFactor = 2.5; // How fast we walk
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    // We move the scene POSITIVE Z (forward) as user scrolls DOWN
+    const zMove = scrollY * speedFactor;
+    
+    if (scene) {
+      scene.style.transform = `translateZ(${zMove}px)`;
+    }
+  });
+</script>
+
+<style>
+  /* The Viewport */
+  .hall-container {
+    height: 100vh; /* Full screen view */
+    width: 100%;
+    position: fixed; /* Stick to screen while we use body height to scroll */
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    perspective: 1000px; /* This creates the 3D depth effect */
+    z-index: 1; /* Behind the header if possible, or adjust based on preference */
+    pointer-events: none; /* Let scroll pass through to body */
+  }
+
+  /* The World that moves */
+  .hall-scene {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  /* Retro Grid Floor */
+  .floor-grid {
+    position: absolute;
+    width: 200vw;
+    height: 20000px; /* Long floor */
+    background: 
+      linear-gradient(var(--color-text-accent) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-text-accent) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-position: center;
+    transform: rotateX(90deg) translateZ(300px) translateY(-50%);
+    opacity: 0.1;
+  }
+
+  /* The Video Cards */
+  .video-frame {
+    position: absolute;
+    width: 400px; /* Video width */
+    height: auto;
+    left: -200px; /* Center the element origin */
+    top: -150px;
+    
+    background: #000;
+    border: 1px solid var(--color-text-accent);
+    padding: 10px;
+    pointer-events: auto; /* Re-enable clicks for the video */
+    
+    /* Cool "Terminal" Shadow */
+    box-shadow: 0 0 15px rgba(35, 144, 158, 0.1);
+    transition: border-color 0.3s;
+  }
+
+  .video-frame:hover {
+    border-color: var(--color-highlight);
+    box-shadow: 0 0 25px rgba(35, 144, 158, 0.3);
+  }
+
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    background: #111;
+    margin-bottom: 1rem;
+  }
+
+  .video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-meta {
+    font-family: var(--font-mono);
+    text-align: left;
+  }
+
+  .index-marker {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--color-text-accent);
+    margin-bottom: 0.2rem;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 2px;
+  }
+
+  .video-meta h3 {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    color: var(--color-text-light);
+  }
+  
+  .video-meta p {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  .end-marker {
+    position: absolute;
+    color: var(--color-highlight);
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    left: -100px;
+    width: 200px;
+    text-align: center;
+  }
+</style>

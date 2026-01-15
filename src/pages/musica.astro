@@ -1,21 +1,56 @@
 ---
 import BaseLayout from '../layouts/Layout.astro';
-import MusicGallery from '../components/MusicGallery.jsx';
+import VideoHall from '../components/VideoHall.astro';
+import videos from '../data/videos.json';
 
-// El título que aparecerá arriba en el header del Layout
-const pageTitle = "Nuestra Cueva Virtual/ Curaduría Musical";
+const pageTitle = "Curaduría Musical / Hall of Frames";
+
+// Calculate how tall the page needs to be to scroll through all videos
+// 300px per video unit is a rough estimate for scroll feel
+const totalHeight = Math.max(2000, videos.length * 900) + "px";
 ---
 
-<BaseLayout title={pageTitle}>
-  
-  <h2 style="var(--color-highlight); margin-top: 0;">> LOBBY / CURADURÍA_MUSICAL</h2>
-  
-  <p style="font-size: 0.9rem; font-style: italic; opacity: 0.8; margin-bottom: 2rem;">
-    Colecciones de canciones previamente seleccionadas por Jose. Selecciona un registro para abrir el expediente.
-  </p>
+<BaseLayout title={pageTitle} fullWidth={true}>
+    
+    <div class="intro-overlay">
+        <h2>>> ACCESSING ARCHIVE...</h2>
+        <p>Scroll down to enter the Virtual Hall.</p>
+        <div class="arrow">↓</div>
+    </div>
 
-  <div style="border-top: 1px dashed #333; padding-top: 2rem;">
-      <MusicGallery client:load />
-  </div>
+    <VideoHall />
+
+    <div style={`height: ${totalHeight};`}></div>
 
 </BaseLayout>
+
+<style>
+    .intro-overlay {
+        position: relative;
+        z-index: 10; /* Above the 3D hall initially */
+        text-align: center;
+        margin-top: 10vh;
+        margin-bottom: 20vh;
+        pointer-events: none; /* Let clicks pass through */
+    }
+    
+    .intro-overlay h2 {
+        background: var(--color-bg);
+        display: inline-block;
+        padding: 0.5rem;
+        border: 1px solid var(--color-highlight);
+        color: var(--color-highlight);
+    }
+
+    .arrow {
+        font-size: 2rem;
+        animation: bounce 2s infinite;
+        margin-top: 1rem;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+        40% {transform: translateY(-10px);}
+        60% {transform: translateY(-5px);}
+    }
+</style>
