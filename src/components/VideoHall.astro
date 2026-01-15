@@ -63,6 +63,18 @@ const X_OFFSET = 350;  // How far left/right from center
     pointer-events: none;
     transition: all 0.5s ease-out;
   }
+  /* --- NEW: HIDE OTHER FRAMES WHEN INSPECTING --- */
+  /* Select all frames that are NOT the currently focused one */
+  body.inspecting-mode .video-frame:not(.is-focused) {
+    /* Move them far up (negative Y) and tilt them back slightly */
+    transform: translateY(-150vh) rotateX(20deg) !important; 
+    /* Fade them out */
+    opacity: 0;
+    /* Make them unclickable while gone */
+    pointer-events: none;
+    /* A slower, smoother transition for the "fly away" effect */
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+  }
   
   /* Ensure the intro text has a transition by default so it comes back smoothly */
   .intro-overlay {
