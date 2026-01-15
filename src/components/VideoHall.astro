@@ -3,7 +3,7 @@ import videos from '../data/videos.json';
 
 // Configuration
 const Z_SPACING = 800; // Distance between videos (depth)
-const X_OFFSET = 350;  // How far left/right from center the videos are
+const X_OFFSET = 350;  // How far left/right from center
 ---
 
 <div class="hall-container">
@@ -12,16 +12,26 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
     <div class="floor-grid"></div>
 
     {videos.map((video, index) => {
-      // Calculate 3D position
+      // Calculate standard 3D position
       const zPos = index * -Z_SPACING; 
-      const xPos = index % 2 === 0 ? X_OFFSET : -X_OFFSET; // Alternate Left/Right
-      const rotationY = index % 2 === 0 ? -15 : 15; // Slight angle towards viewer
+      const isLeft = index % 2 === 0;
+      const xPos = isLeft ? X_OFFSET : -X_OFFSET;
+      const rotationY = isLeft ? -15 : 15;
 
       return (
         <div 
           class="video-frame"
-          style={`transform: translate3d(${xPos}px, 0, ${zPos}px) rotateY(${rotationY}deg);`}
+          id={`frame-${index}`}
+          data-index={index}
+          data-x-pos={xPos}
+          data-z-pos={zPos}
+          data-rotation={rotationY}
+          style={`--base-transform: translate3d(${xPos}px, 0, ${zPos}px) rotateY(${rotationY}deg);`}
         >
+          <div class="click-overlay" onclick={`focusFrame(${index})`}>
+            <span class="inspect-hint">[ INSPECT ]</span>
+          </div>
+
           <div class="video-wrapper">
              <iframe 
                 src={`https://www.youtube.com/embed/${video.id}`} 
@@ -31,15 +41,16 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
                 allowfullscreen
              ></iframe>
           </div>
+          
           <div class="video-meta">
             <span class="index-marker">No. 0{index + 1}</span>
             <h3>{video.title}</h3>
-            <p class="cueva-muted">{video.desc}</p>
+            <p class="cueva-muted desc-text">{video.desc}</p>
           </div>
         </div>
       );
     })}
-    
+
     <div class="end-marker" style={`transform: translate3d(0, 0, ${(videos.length * -Z_SPACING) - 500}px)`}>
       [ END OF ARCHIVE ]
     </div>
@@ -47,52 +58,99 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
   </div>
 </div>
 
-<script>
-  // Script to map Scroll Y -> Translate Z
+<script is:inline>
+  // 1. SCROLL ENGINE
   const scene = document.getElementById('hallScene');
-  const speedFactor = 2.5; // How fast we walk
+  const speedFactor = 2.5; 
 
   window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
-    // We move the scene POSITIVE Z (forward) as user scrolls DOWN
     const zMove = scrollY * speedFactor;
-    
     if (scene) {
       scene.style.transform = `translateZ(${zMove}px)`;
     }
   });
+
+  // 2. FOCUS ENGINE (The "Inspect" Animation)
+  let currentFocus = null;
+
+  window.focusFrame = (index) => {
+    const frame = document.getElementById(`frame-${index}`);
+    const overlay = frame.querySelector('.click-overlay');
+    const zPos = frame.dataset.zPos; 
+
+    // If clicking the same one, do nothing (or toggle off if you prefer)
+    if (currentFocus === index) return;
+
+    // Reset previous focus if exists
+    if (currentFocus !== null) {
+      resetFrame(currentFocus);
+    }
+
+    // Set new focus
+    currentFocus = index;
+    frame.classList.add('is-focused');
+    
+    // Remove the glass overlay so user can click Play now
+    overlay.style.pointerEvents = 'none'; 
+    overlay.style.opacity = '0';
+
+    // The Magic: We overwrite the transform to center it
+    // We move it to X=0, and slightly forward (zPos + 150) so it pops out
+    frame.style.transform = `translate3d(0px, 0px, ${parseInt(zPos) + 200}px) rotateY(0deg) scale(1.1)`;
+    frame.style.zIndex = '100'; // Make sure it floats above neighbors
+  };
+
+  // Helper to put a frame back on the wall
+  function resetFrame(index) {
+    const frame = document.getElementById(`frame-${index}`);
+    const overlay = frame.querySelector('.click-overlay');
+    
+    frame.classList.remove('is-focused');
+    
+    // Restore original wall position
+    frame.style.transform = frame.style.getPropertyValue('--base-transform');
+    frame.style.zIndex = 'auto';
+
+    // Bring back the glass overlay for next time
+    setTimeout(() => {
+        overlay.style.pointerEvents = 'auto';
+        overlay.style.opacity = '1';
+    }, 500); // Wait for animation to finish
+  }
+
+  // Optional: Click strictly outside to close? 
+  // For now, clicking another video automatically closes the previous one.
 </script>
 
 <style>
-  /* The Viewport */
+  /* --- BASE STYLES --- */
   .hall-container {
-    height: 100vh; /* Full screen view */
+    height: 100vh;
     width: 100%;
-    position: fixed; /* Stick to screen while we use body height to scroll */
+    position: fixed;
     top: 0;
     left: 0;
     overflow: hidden;
-    perspective: 1000px; /* This creates the 3D depth effect */
-    z-index: 1; /* Behind the header if possible, or adjust based on preference */
-    pointer-events: none; /* Let scroll pass through to body */
+    perspective: 1000px; 
+    z-index: 1; 
+    pointer-events: none; 
   }
 
-  /* The World that moves */
   .hall-scene {
     position: absolute;
     width: 100%;
     height: 100%;
-    top: 50%; /* Center vertically */
-    left: 50%; /* Center horizontally */
+    top: 50%;
+    left: 50%;
     transform-style: preserve-3d;
     will-change: transform;
   }
 
-  /* Retro Grid Floor */
   .floor-grid {
     position: absolute;
     width: 200vw;
-    height: 20000px; /* Long floor */
+    height: 20000px; 
     background: 
       linear-gradient(var(--color-text-accent) 1px, transparent 1px),
       linear-gradient(90deg, var(--color-text-accent) 1px, transparent 1px);
@@ -102,35 +160,79 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
     opacity: 0.1;
   }
 
-  /* The Video Cards */
+  /* --- VIDEO CARD STYLES --- */
   .video-frame {
     position: absolute;
-    width: 400px; /* Video width */
-    height: auto;
-    left: -200px; /* Center the element origin */
-    top: -150px;
-    
-    background: #000;
-    border: 1px solid var(--color-text-accent);
+    width: 420px; 
+    left: -210px; /* Center origin */
+    top: -160px;
+    background: #050505;
+    border: 1px solid #333;
     padding: 10px;
-    pointer-events: auto; /* Re-enable clicks for the video */
+    pointer-events: auto; 
     
-    /* Cool "Terminal" Shadow */
-    box-shadow: 0 0 15px rgba(35, 144, 158, 0.1);
-    transition: border-color 0.3s;
+    /* Apply the base transform initially */
+    transform: var(--base-transform);
+    
+    /* Smooth transition for the "Pop" effect */
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                border-color 0.3s, 
+                box-shadow 0.3s;
   }
 
   .video-frame:hover {
+    border-color: var(--color-text-accent);
+  }
+
+  /* Focused State (The "Pop") */
+  .video-frame.is-focused {
     border-color: var(--color-highlight);
-    box-shadow: 0 0 25px rgba(35, 144, 158, 0.3);
+    box-shadow: 0 0 50px rgba(35, 144, 158, 0.4); /* Strong glow */
+  }
+
+  /* --- THE INTERACTION LAYER --- */
+  .click-overlay {
+    position: absolute;
+    top: 10px; /* Match padding */
+    left: 10px;
+    right: 10px;
+    bottom: 80px; /* Don't cover the text area, just the video */
+    background: rgba(0, 0, 0, 0.2); /* Slight dim */
+    z-index: 50;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s, background 0.3s;
+  }
+  
+  .click-overlay:hover {
+    background: rgba(35, 144, 158, 0.1); /* Highlight color tint */
+  }
+
+  .inspect-hint {
+    color: var(--color-highlight);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    opacity: 0; /* Hidden by default */
+    transform: scale(0.8);
+    transition: all 0.2s;
+    background: #000;
+    padding: 5px 10px;
+    border: 1px dashed var(--color-highlight);
+  }
+
+  .click-overlay:hover .inspect-hint {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .video-wrapper {
     position: relative;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    padding-bottom: 56.25%;
     height: 0;
     overflow: hidden;
-    background: #111;
+    background: #000;
     margin-bottom: 1rem;
   }
 
@@ -142,9 +244,11 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
     height: 100%;
   }
 
+  /* --- TEXT EFFECTS --- */
   .video-meta {
     font-family: var(--font-mono);
     text-align: left;
+    transition: opacity 0.3s;
   }
 
   .index-marker {
@@ -162,9 +266,15 @@ const X_OFFSET = 350;  // How far left/right from center the videos are
     color: var(--color-text-light);
   }
   
-  .video-meta p {
+  .desc-text {
     font-size: 0.8rem;
-    margin: 0;
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+
+  /* Brightness Boost on Focus */
+  .video-frame.is-focused .desc-text {
+    color: #fff; /* Pure white */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Glow text */
   }
 
   .end-marker {
