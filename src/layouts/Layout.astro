@@ -46,32 +46,56 @@ function getLangSwitchPath(targetLang) {
         color: var(--color-text-light);
         font-family: var(--font-mono);
   
-       
+        
         width: 100%;             /* Ocupa todo el ancho posible */
-        max-width: 1400px;       /* Tope máximo para pantallas gigantes (puedes borrarlo si quieres 100% real) */
-        margin: 0 auto;          /* Centra el contenido si la pantalla es mayor a 1400px */
+        max-width: 1400px;       /* Tope máximo para pantallas gigantes */
+        margin: 0 auto;          /* Centra el contenido */
         padding: 1rem;           /* Margen interno pequeño para celulares */
         box-sizing: border-box;  /* Asegura que el padding no rompa el ancho */
         line-height: 1.6;
       }
 
-/* === AJUSTE PARA PANTALLAS GRANDES (Laptop/Desktop) === */
-@media (min-width: 768px) {
-  body {
-    padding: 3rem; /* Más aire en pantallas grandes */
-  }
-}
+      /* === AJUSTE PARA PANTALLAS GRANDES (Laptop/Desktop) === */
+      @media (min-width: 768px) {
+        body {
+          padding: 3rem; /* Más aire en pantallas grandes */
+        }
+      }
+
+      /* Cuando es FullWidth, el body pierde sus márgenes para el 3D */
       body.fullWidth {
         max-width: none;
         margin: 0;
         padding: 0;
       }
+
       header { 
         margin-bottom: 3rem; 
         border-bottom: 1px dashed var(--color-text-accent); /* Línea punteada más retro */
         padding-bottom: 1.5rem;
       }
       
+      /* --- NEW: Constraint class for the Header in FullWidth mode --- */
+      /* This restores the "Container" look just for the header */
+      .header-constrained {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        
+        /* Restoring the padding that BODY usually provides */
+        padding-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .header-constrained {
+          padding-top: 3rem;
+          padding-left: 3rem;
+          padding-right: 3rem;
+        }
+      }
+
       h1 { 
         font-weight: normal; 
         font-size: 1.5rem;
@@ -106,7 +130,7 @@ function getLangSwitchPath(targetLang) {
   
   <body class={fullWidth ? "fullWidth" : ""}>
     {!hideHeader && (
-    <header>
+    <header class={fullWidth ? "header-constrained" : ""}>
       <div class="lang-switch">
         <a href={getLangSwitchPath('es')}>[ES]</a> <a href={getLangSwitchPath('en')}>[EN]</a>
       </div>
