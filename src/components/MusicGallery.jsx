@@ -11,7 +11,7 @@ const COLLECTIONS = [
       "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo? Una selección de Jose Shōta",
     cover: "/images/playlist-cover-v1.jpg",
     tracks: playlistData,
-    totalDuration: "1h 14m",
+    totalDuration: "11h 16m 09s",
     trackCount: playlistData.length
   },
 ];
