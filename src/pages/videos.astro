@@ -1,37 +1,73 @@
 ---
 import BaseLayout from '../layouts/Layout.astro';
 import VideoHall from '../components/VideoHall.astro';
+import VideoDeck from '../components/VideoDeck.jsx'; // Import the new component
 import videos from '../data/videos.json';
 
 const pageTitle = "Nuestra Cueva Virtual/ El museo audiovisual de Jose Shota";
 
-// Calculate how tall the page needs to be to scroll through all videos
-// 300px per video unit is a rough estimate for scroll feel
+// We keep your height calculation for desktop, 
+// but for mobile we don't need scroll height because the deck is fixed position.
 const totalHeight = Math.max(2000, videos.length * 900) + "px";
 ---
 
 <BaseLayout title={pageTitle} fullWidth={true}>
     
-    <div class="intro-overlay">
-        <h2>>> ACCESSING ARCHIVE...</h2>
-        <p>Scroll down to enter the Virtual Hall.</p>
-        <div class="arrow">↓</div>
+    <div class="desktop-view">
+        <div class="intro-overlay">
+            <h2>>> ACCESSING ARCHIVE...</h2>
+            <p>Scroll down to enter the Virtual Hall.</p>
+            <div class="arrow">↓</div>
+        </div>
+
+        <VideoHall />
+
+        <div style={`height: ${totalHeight};`}></div>
     </div>
 
-    <VideoHall />
-
-    <div style={`height: ${totalHeight};`}></div>
+    <div class="mobile-view">
+        <div class="mobile-header">
+            <h2>>> VIRTUAL DECK</h2>
+            <p>Swipe cards to browse archive.</p>
+        </div>
+        
+        <VideoDeck client:load />
+    </div>
 
 </BaseLayout>
 
 <style>
+    /* --- MEDIA QUERIES FOR SWITCHING --- */
+    
+    /* Default (Mobile First approach usually, but here we explicitly define both) */
+    .desktop-view {
+        display: none; /* Hide desktop by default on small screens */
+    }
+    .mobile-view {
+        display: block;
+        height: 100vh;
+        overflow: hidden; /* Prevent scrolling on mobile deck */
+        padding-top: 80px; /* Space for header */
+        background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    }
+
+    @media (min-width: 768px) {
+        .desktop-view {
+            display: block; /* Show desktop on tablets/laptops */
+        }
+        .mobile-view {
+            display: none; /* Hide mobile deck */
+        }
+    }
+
+    /* --- YOUR EXISTING STYLES --- */
     .intro-overlay {
         position: relative;
-        z-index: 10; /* Above the 3D hall initially */
+        z-index: 10;
         text-align: center;
         margin-top: 10vh;
         margin-bottom: 20vh;
-        pointer-events: none; /* Let clicks pass through */
+        pointer-events: none;
     }
     
     .intro-overlay h2 {
@@ -46,6 +82,25 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
         font-size: 2rem;
         animation: bounce 2s infinite;
         margin-top: 1rem;
+    }
+
+    /* Mobile Header Styling */
+    .mobile-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .mobile-header h2 {
+        color: var(--color-highlight);
+        font-size: 1.2rem;
+        border: 1px dashed var(--color-highlight);
+        display: inline-block;
+        padding: 5px 10px;
+        margin-bottom: 5px;
+    }
+    .mobile-header p {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--color-text-accent);
     }
 
     @keyframes bounce {
