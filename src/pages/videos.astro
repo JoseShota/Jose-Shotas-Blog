@@ -39,24 +39,44 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
 <style>
     /* --- MEDIA QUERIES FOR SWITCHING --- */
     
-    /* Default (Mobile First approach usually, but here we explicitly define both) */
+    /* DEFAULT: Assume it's a Desktop/Mouse device first (The Hall) */
     .desktop-view {
-        display: none; /* Hide desktop by default on small screens */
+        display: block;
     }
     .mobile-view {
-        display: block;
-        height: 100vh;
-        overflow: hidden; /* Prevent scrolling on mobile deck */
-        padding-top: 80px; /* Space for header */
-        background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        display: none;
     }
 
-    @media (min-width: 768px) {
+    /* RULE 1: If the device has a "Coarse" pointer (Finger) 
+       AND cannot "Hover" (No Mouse), it is a Tablet or Phone.
+       Show the Deck.
+    */
+    @media (pointer: coarse) and (hover: none) {
         .desktop-view {
-            display: block; /* Show desktop on tablets/laptops */
+            display: none;
         }
         .mobile-view {
-            display: none; /* Hide mobile deck */
+            display: block;
+            height: 100vh;
+            overflow: hidden;
+            padding-top: 40px;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+        }
+    }
+
+    /* RULE 2: Fallback for small screens just in case 
+       (e.g., a really small window on a desktop).
+    */
+    @media (max-width: 768px) {
+        .desktop-view {
+            display: none;
+        }
+        .mobile-view {
+            display: block;
+            height: 100vh;
+            overflow: hidden;
+            padding-top: 40px;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
         }
     }
 
