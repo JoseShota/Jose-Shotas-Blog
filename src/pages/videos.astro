@@ -39,7 +39,7 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
 <style>
     /* --- MEDIA QUERIES FOR SWITCHING --- */
     
-    /* DEFAULT: Assume it's a Desktop/Mouse device first (The Hall) */
+    /* DEFAULT: Desktop/Mouse device (The Hall) */
     .desktop-view {
         display: block;
     }
@@ -47,16 +47,15 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
         display: none;
     }
 
-    /* RULE 1: If the device has a "Coarse" pointer (Finger) 
-       AND cannot "Hover" (No Mouse), it is a Tablet or Phone.
-       Show the Deck.
+    /* RULE 1: STRICTLY TOUCH DEVICES 
+       We removed the width constraint here. 
+       If the user is using a finger (coarse pointer), they get the Deck.
+       This catches iPad Pro in Landscape (which is wide) without hurting Laptops (which use mouse).
     */
-    @media (pointer: coarse) and (hover: none) {
-        .desktop-view {
-            display: none;
-        }
-        .mobile-view {
-            display: block;
+    @media (pointer: coarse) {
+        .desktop-view { display: none; }
+        .mobile-view  { 
+            display: block; 
             height: 100vh;
             overflow: hidden;
             padding-top: 40px;
@@ -64,15 +63,16 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
         }
     }
 
-    /* RULE 2: Fallback for small screens just in case 
-       (e.g., a really small window on a desktop).
+    /* RULE 2: TINY SCREENS (Phones/Small Windows)
+       We keep this at 768px. 
+       Most laptops are at least 1024px or 1280px wide. 
+       This ensures that if a computer user resizes their window somewhat small, 
+       they generally keep the 3D Hall until it becomes absurdly narrow.
     */
     @media (max-width: 768px) {
-        .desktop-view {
-            display: none;
-        }
-        .mobile-view {
-            display: block;
+        .desktop-view { display: none; }
+        .mobile-view  { 
+            display: block; 
             height: 100vh;
             overflow: hidden;
             padding-top: 40px;
