@@ -43,8 +43,18 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
     .desktop-view {
         display: block;
     }
+    /* RULE 1 & 2 combined logic for .mobile-view */
+    /* We make the container a flex column so items sit naturally */
     .mobile-view {
-        display: none;
+        display: block; /* Triggered by media queries */
+        height: 100vh;
+        width: 100%;
+        overflow: hidden;
+        display: flex;            /* <--- CHANGE: Flexbox */
+        flex-direction: column;   /* <--- CHANGE: Vertical Stack */
+        justify-content: center;  /* <--- CHANGE: Center content vertically */
+        align-items: center;      /* <--- CHANGE: Center content horizontally */
+        padding-bottom: 2rem;     /* Add some bottom breathing room */
     }
 
     /* RULE 1: STRICTLY TOUCH DEVICES 
@@ -103,9 +113,13 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
     }
 
     /* Mobile Header Styling */
+    /* Adjust header to not have huge margins, let Flexbox handle the gap */
     .mobile-header {
         text-align: center;
-        margin-bottom: 1rem;
+        margin-top: 2rem;        /* Small top margin */
+        margin-bottom: 1rem;     /* Small bottom gap before deck */
+        flex-shrink: 0;          /* Prevent header from squishing */
+        z-index: 20;
     }
     .mobile-header h2 {
         color: var(--color-highlight);

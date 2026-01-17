@@ -65,18 +65,31 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
       style={{
         zIndex: total - index,
         x: isFront ? x : 0,
-        rotate: isFront ? rotate : 0,
+        /* If front, use the drag rotate. 
+         If back, alternate rotation based on index for a "messy" fan look. */
+        rotate: isFront 
+          ? rotate 
+          : (index % 2 === 0 ? 1 : -1) * (index * 2),
         opacity: isFront ? opacity : 1 - index * 0.1, 
         scale: 1 - index * 0.05,
         y: index * 15,
         cursor: 'grab',
       }}
       drag={isFront ? 'x' : false} 
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.1} // Makes it feel "tighter" and smoother
-      onDragEnd={handleDragEnd}
+      dragConstraints={{ left: -1000, right: 1000 }}
+      dragElastic={1}
+      onDragEnd={(event, info) => {
+      // Swipe Logic
+      if (Math.abs(info.offset.x) > 100) {
+        onSwipe();
+      } 
+      // Tap Logic: Only expand if movement was tiny (less than 10px)
+      // This solves the "swiping acts like clicking" issue.
+      else if (Math.abs(info.offset.x) < 10 && isFront) {
+        onExpand();
+      }
+      }}
       // If clicked (and not dragged), trigger expand
-      onTap={() => { if(isFront) onExpand(); }} 
       transition={{ type: "spring", stiffness: 260, damping: 20 }}
       className="cueva-card deck-card"
     >
@@ -160,12 +173,14 @@ export default function VideoDeck() {
 
         <style>{`
             .deck-wrapper {
-                width: 100%;
-                height: 80vh; 
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
+              width: 100%;
+              height: auto;       /* <--- CHANGE: Was 80vh. Auto lets it fit naturally. */
+              flex-grow: 1;       /* <--- NEW: Takes up remaining space in the flex container */
+              display: flex;
+              align-items: center; 
+              justify-content: center;
+              position: relative;
+              /* Remove padding if present, flex-grow handles the spacing */
             }
             .deck-container {
                 position: relative;
