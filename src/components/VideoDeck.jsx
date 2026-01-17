@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import videoData from '../data/videos.json';
 
@@ -52,13 +52,9 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-10, 10]); 
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]); 
-
-  const handleDragEnd = (event, info) => {
-    // If dragged far enough, swipe.
-    if (Math.abs(info.offset.x) > 100) {
-      onSwipe();
-    }
-  };
+  
+  // The Gatekeeper: Tracks if we are currently dragging
+  const isDragging = useRef(false);
 
   return (
     <motion.div
@@ -66,7 +62,7 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
         zIndex: total - index,
         x: isFront ? x : 0,
         /* If front, use the drag rotate. 
-         If back, alternate rotation based on index for a "messy" fan look. */
+           If back, alternate rotation based on index for a "messy" fan look. */
         rotate: isFront 
           ? rotate 
           : (index % 2 === 0 ? 1 : -1) * (index * 2),
@@ -74,26 +70,48 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
         scale: 1 - index * 0.05,
         y: index * 15,
         cursor: 'grab',
+        /* CSS FIX: Prevents browser scrolling/navigation gestures while touching the card */
+        touchAction: 'none'
       }}
+      
       drag={isFront ? 'x' : false} 
+      
+      /* WIDE CONSTRAINTS: Allows the card to move freely so physics can detect "Drag" vs "Tap" */
       dragConstraints={{ left: -1000, right: 1000 }}
       dragElastic={1}
+
+      /* 1. LOCK: When drag starts, we raise the flag */
+      onDragStart={() => {
+        isDragging.current = true;
+      }}
+
+      /* 2. UNLOCK: When drag ends, we check for swipe AND lower the flag */
       onDragEnd={(event, info) => {
+        // If dragged far enough, trigger the swipe action
         if (Math.abs(info.offset.x) > 100) {
           onSwipe();
         }
+        
+        // We wait a tiny bit (150ms) before allowing clicks again.
+        // This stops the "Tap" event from firing immediately after you let go.
+        setTimeout(() => {
+            isDragging.current = false;
+        }, 150);
       }}
+
+      /* 3. CHECK: Only expand if we were NOT dragging */
       onTap={() => { 
-        if(isFront) onExpand(); 
+        if(!isDragging.current && isFront) {
+            onExpand(); 
+        }
       }}
-      // If clicked (and not dragged), trigger expand
+      
       transition={{ type: "spring", stiffness: 260, damping: 20 }}
       className="cueva-card deck-card"
     >
       <div className="card-inner">
         <div className="card-header">
            <span className="cueva-mono cueva-accent text-xs">ITEM NO. 0{index + 1}</span>
-           {/* SPINNER REMOVED HERE */}
         </div>
 
         <div className="video-container">
