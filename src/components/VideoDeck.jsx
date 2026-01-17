@@ -79,15 +79,12 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
       dragConstraints={{ left: -1000, right: 1000 }}
       dragElastic={1}
       onDragEnd={(event, info) => {
-      // Swipe Logic
-      if (Math.abs(info.offset.x) > 100) {
-        onSwipe();
-      } 
-      // Tap Logic: Only expand if movement was tiny (less than 10px)
-      // This solves the "swiping acts like clicking" issue.
-      else if (Math.abs(info.offset.x) < 10 && isFront) {
-        onExpand();
-      }
+        if (Math.abs(info.offset.x) > 100) {
+          onSwipe();
+        }
+      }}
+      onTap={() => { 
+        if(isFront) onExpand(); 
       }}
       // If clicked (and not dragged), trigger expand
       transition={{ type: "spring", stiffness: 260, damping: 20 }}
