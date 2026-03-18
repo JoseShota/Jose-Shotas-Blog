@@ -1,0 +1,605 @@
+[
+  {
+    "id": 1,
+    "title": "Cuerpo y Alma",
+    "artist": "Eduardo Mateo",
+    "album": "Cuerpo y Alma",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Cuerpo y Alma/01 Cuerpo y Alma.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Cuerpo y Alma/01 Cuerpo y Alma.jpg",
+    "duration": "3:06"
+  },
+  {
+    "id": 2,
+    "title": "Un Canto para Mamá",
+    "artist": "Eduardo Mateo, Jorge Trasante",
+    "album": "Mateo y Trasante",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo y Trasante/06 Un Canto para Mamá.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo y Trasante/06 Un Canto para Mamá.jpg",
+    "duration": "3:59"
+  },
+  {
+    "id": 3,
+    "title": "Mandolín",
+    "artist": "Gustavo Pena - El Príncipe",
+    "album": "El Recital",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena - El Príncipe/El Recital/1-14 Mandolín.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena - El Príncipe/El Recital/1-14 Mandolín.jpg",
+    "duration": "4:10"
+  },
+  {
+    "id": 4,
+    "title": "Aunque no sea conmigo (feat. Café Tacvba)",
+    "artist": "Celso Piña y su Ronda Bogotá",
+    "album": "Barrio Bravo",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Celso Piña y su Ronda Bogotá/Barrio Bravo/07 Aunque no sea conmigo (feat. Café Tacvba).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Celso Piña y su Ronda Bogotá/Barrio Bravo/07 Aunque no sea conmigo (feat. Café Tacvba).jpg",
+    "duration": "3:33"
+  },
+  {
+    "id": 5,
+    "title": "Construcción",
+    "artist": "Daniel Viglietti",
+    "album": "Trópicos",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Daniel Viglietti/Trópicos/05 Construcción.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Daniel Viglietti/Trópicos/05 Construcción.jpg",
+    "duration": "6:07"
+  },
+  {
+    "id": 6,
+    "title": "De Nosotros Dos",
+    "artist": "Eduardo Mateo",
+    "album": "Mateo Solo Bien Se Lame",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo Solo Bien Se Lame/04 De Nosotros Dos.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo Solo Bien Se Lame/04 De Nosotros Dos.jpg",
+    "duration": "3:18"
+  },
+  {
+    "id": 7,
+    "title": "La Pastorcita Perdida",
+    "artist": "Atahualpa Yupanqui",
+    "album": "Las Canciones de Atahualpa Yupanqui",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Atahualpa Yupanqui/Las Canciones de Atahualpa Yupanqui/04 La Pastorcita Perdida.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Atahualpa Yupanqui/Las Canciones de Atahualpa Yupanqui/04 La Pastorcita Perdida.jpg",
+    "duration": "3:31"
+  },
+  {
+    "id": 8,
+    "title": "Descripcion",
+    "artist": "Elia y Elizabeth",
+    "album": "Elia Y Elizabeth",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/02 Descripcion.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/02 Descripcion.jpg",
+    "duration": "2:55"
+  },
+  {
+    "id": 9,
+    "title": "Seda contra amarte",
+    "artist": "Amaia Miranda",
+    "album": "Mientras vivas brilla",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Amaia Miranda/Mientras vivas brilla/02 Seda contra amarte.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Amaia Miranda/Mientras vivas brilla/02 Seda contra amarte.jpg",
+    "duration": "2:30"
+  },
+  {
+    "id": 10,
+    "title": "Fue Una Lagrima",
+    "artist": "Elia y Elizabeth",
+    "album": "Elia Y Elizabeth",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/09 Fue Una Lagrima.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/09 Fue Una Lagrima.jpg",
+    "duration": "2:56"
+  },
+  {
+    "id": 11,
+    "title": "No Te Vayas, Por Favor",
+    "artist": "Piero",
+    "album": "Piero (Mi Viejo)",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Piero (Mi Viejo)/1-15 No Te Vayas, Por Favor.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Piero (Mi Viejo)/1-15 No Te Vayas, Por Favor.jpg",
+    "duration": ""
+  },
+  {
+    "id": 12,
+    "title": "Así no más",
+    "artist": "Juan Wauters",
+    "album": "Who Me?",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Juan Wauters/Who Me/11 Así no más.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Juan Wauters/Who Me/11 Así no más.jpg",
+    "duration": "1:52"
+  },
+  {
+    "id": 13,
+    "title": "Aquellos Ojos Verdes",
+    "artist": "Mapache",
+    "album": "Mapache",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mapache/Mapache/03 Aquellos Ojos Verdes.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mapache/Mapache/03 Aquellos Ojos Verdes.jpg",
+    "duration": "2:42"
+  },
+  {
+    "id": 14,
+    "title": "Lucha De Gigantes",
+    "artist": "Nacha Pop",
+    "album": "El Momento",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nacha Pop/El Momento/07 Lucha De Gigantes.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nacha Pop/El Momento/07 Lucha De Gigantes.jpg",
+    "duration": "4:08"
+  },
+  {
+    "id": 15,
+    "title": "P.F.",
+    "artist": "Diego Lorenzini",
+    "album": "Trenzas Ad Honorem",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Diego Lorenzini/Trenzas Ad Honorem/05 P.F..mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Diego Lorenzini/Trenzas Ad Honorem/05 P.F..jpg",
+    "duration": "3:47"
+  },
+  {
+    "id": 16,
+    "title": "A un minuto de ti",
+    "artist": "Mikel Erentxun",
+    "album": "Naufragios",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mikel Erentxun/Naufragios/01 A un minuto de ti.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mikel Erentxun/Naufragios/01 A un minuto de ti.jpg",
+    "duration": "3:53"
+  },
+  {
+    "id": 17,
+    "title": "Una décima de segundo  (Live)",
+    "artist": "Antonio Vega",
+    "album": "Básico",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Antonio Vega/Básico/10 Una décima de segundo  (Live).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Antonio Vega/Básico/10 Una décima de segundo  (Live).jpg",
+    "duration": "3:09"
+  },
+  {
+    "id": 18,
+    "title": "Guapa",
+    "artist": "Juan Wauters",
+    "album": "La Onda de Juan Pablo",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Juan Wauters/La Onda de Juan Pablo/05 Guapa.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Juan Wauters/La Onda de Juan Pablo/05 Guapa.jpg",
+    "duration": "5:29"
+  },
+  {
+    "id": 19,
+    "title": "Tonada De Luna Llena",
+    "artist": "Simon Diaz",
+    "album": "Tonadas",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Simon Diaz/Tonadas/07 Tonada De Luna Llena.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Simon Diaz/Tonadas/07 Tonada De Luna Llena.jpg",
+    "duration": "3:07"
+  },
+  {
+    "id": 20,
+    "title": "Eclipse",
+    "artist": "Natalia Lafourcade, Los Macorinos",
+    "album": "Musas (Un Homenaje al Folclore Latinoamericano en Manos de Los Macorinos), Vol. 2",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Natalia Lafourcade/Musas (Un Homenaje al Folclore Latinoamericano en Manos de Los Macorinos), Vol. 2/08 Eclipse.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Natalia Lafourcade/Musas (Un Homenaje al Folclore Latinoamericano en Manos de Los Macorinos), Vol. 2/08 Eclipse.jpg",
+    "duration": "5:24"
+  },
+  {
+    "id": 21,
+    "title": "Canción Esdrújula",
+    "artist": "Romantictic, Anthony Escandón",
+    "album": "Canción Esdrújula",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Romantictic/Canción Esdrújula/01 Canción Esdrújula.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Romantictic/Canción Esdrújula/01 Canción Esdrújula.jpg",
+    "duration": "4:20"
+  },
+  {
+    "id": 22,
+    "title": "Todo Cambia",
+    "artist": "Mercedes Sosa",
+    "album": "¿Será Posible El Sur?",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mercedes Sosa/¿Será Posible El Sur/05 Todo Cambia.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mercedes Sosa/¿Será Posible El Sur/05 Todo Cambia.jpg",
+    "duration": "4:44"
+  },
+  {
+    "id": 23,
+    "title": "Un Ramito de Violetas",
+    "artist": "Manzanita",
+    "album": "Un Ramito De Violetas",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Manzanita/Un Ramito De Violetas/01 Un Ramito de Violetas.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Manzanita/Un Ramito De Violetas/01 Un Ramito de Violetas.jpg",
+    "duration": "4:43"
+  },
+  {
+    "id": 24,
+    "title": "Día 14 De Abril",
+    "artist": "ROSALÍA",
+    "album": "Los Ángeles",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/05 Día 14 De Abril.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/05 Día 14 De Abril.jpg",
+    "duration": "6:06"
+  },
+  {
+    "id": 25,
+    "title": "Noches de bohemia",
+    "artist": "Navajita Platea",
+    "album": "Noches de Bohemia",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Navajita Platea/Noches de Bohemia/01 Noches de bohemia.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Navajita Platea/Noches de Bohemia/01 Noches de bohemia.jpg",
+    "duration": "4:07"
+  },
+  {
+    "id": 26,
+    "title": "Cuerpo Sin Alma",
+    "artist": "Riccardo Cocciante",
+    "album": "Concierto Para Margarita",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Riccardo Cocciante/Concierto Para Margarita/15 Cuerpo Sin Alma.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Riccardo Cocciante/Concierto Para Margarita/15 Cuerpo Sin Alma.jpg",
+    "duration": "4:33"
+  },
+  {
+    "id": 27,
+    "title": "Señora Diana La Ví",
+    "artist": "Eduardo Mateo",
+    "album": "El Tartamudo",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/El Tartamudo/02 Señora Diana La Ví.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/El Tartamudo/02 Señora Diana La Ví.jpg",
+    "duration": "2:46"
+  },
+  {
+    "id": 28,
+    "title": "Mango",
+    "artist": "La La",
+    "album": "Rosa",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/La La/Rosa/06 Mango.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/La La/Rosa/06 Mango.jpg",
+    "duration": "3:54"
+  },
+  {
+    "id": 29,
+    "title": "En el ultimo trago (con la colaboracion de Chucho Valdes)",
+    "artist": "Buika",
+    "album": "El ultimo trago  (con la colaboracion de Chucho Valdes)",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Buika/El ultimo trago  (con la colaboracion de Chucho Valdes)/06 En el ultimo trago (con la colaboracion de Chucho Valdes).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Buika/El ultimo trago  (con la colaboracion de Chucho Valdes)/06 En el ultimo trago (con la colaboracion de Chucho Valdes).jpg",
+    "duration": "2:48"
+  },
+  {
+    "id": 30,
+    "title": "Hay Que Vivir La Vida",
+    "artist": "Elia y Elizabeth",
+    "album": "Elia Y Elizabeth",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/01 Hay Que Vivir La Vida.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/Elia Y Elizabeth/01 Hay Que Vivir La Vida.jpg",
+    "duration": "2:29"
+  },
+  {
+    "id": 31,
+    "title": "Ahora que he vuelto  (50 Aniversario Remaster)",
+    "artist": "Miguel Rios",
+    "album": "Despierta  (50 Aniversario Remaster)",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Miguel Rios/Despierta  (50 Aniversario Remaster)/07 Ahora que he vuelto  (50 Aniversario Remaster).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Miguel Rios/Despierta  (50 Aniversario Remaster)/07 Ahora que he vuelto  (50 Aniversario Remaster).jpg",
+    "duration": "0:40"
+  },
+  {
+    "id": 32,
+    "title": "Ahora que he vuelto",
+    "artist": "Miguel Ríos",
+    "album": "Ahora que he vuelto",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Miguel Ríos/Ahora que he vuelto/01 Ahora que he vuelto.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Miguel Ríos/Ahora que he vuelto/01 Ahora que he vuelto.jpg",
+    "duration": "2:50"
+  },
+  {
+    "id": 33,
+    "title": "Hay Lena Que Arde Sin Humo",
+    "artist": "Atahualpa Yupanqui",
+    "album": "Las Canciones de Atahualpa Yupanqui",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Atahualpa Yupanqui/Las Canciones de Atahualpa Yupanqui/11 Hay Lena Que Arde Sin Humo.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Atahualpa Yupanqui/Las Canciones de Atahualpa Yupanqui/11 Hay Lena Que Arde Sin Humo.jpg",
+    "duration": "2:34"
+  },
+  {
+    "id": 34,
+    "title": "Buscandonos",
+    "artist": "Elia y Elizabeth",
+    "album": "The Original Recordings",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/The Original Recordings/06 Buscandonos.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Elia y Elizabeth/The Original Recordings/06 Buscandonos.jpg",
+    "duration": "2:50"
+  },
+  {
+    "id": 35,
+    "title": "Quién Te Viera",
+    "artist": "Eduardo Mateo",
+    "album": "Mateo Solo Bien Se Lame",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo Solo Bien Se Lame/02 Quién Te Viera.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Eduardo Mateo/Mateo Solo Bien Se Lame/02 Quién Te Viera.jpg",
+    "duration": "2:00"
+  },
+  {
+    "id": 36,
+    "title": "La Curandera",
+    "artist": "Edson Velandia",
+    "album": "El Karateka",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Edson Velandia/El Karateka/07 La Curandera.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Edson Velandia/El Karateka/07 La Curandera.jpg",
+    "duration": "2:31"
+  },
+  {
+    "id": 37,
+    "title": "Buen Viaje",
+    "artist": "Fémina",
+    "album": "Traspasa",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Fémina/Traspasa/1-01 Buen Viaje.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Fémina/Traspasa/1-01 Buen Viaje.jpg",
+    "duration": "3:34"
+  },
+  {
+    "id": 38,
+    "title": "Mar",
+    "artist": "Gustavo Pena El Príncipe",
+    "album": "Lado A (Analógico) [Espíritu Inquieto]",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena El Príncipe/Lado A (Analógico) [Espíritu Inquieto]/11 Mar.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena El Príncipe/Lado A (Analógico) [Espíritu Inquieto]/11 Mar.jpg",
+    "duration": "1:54"
+  },
+  {
+    "id": 39,
+    "title": "Fantasía",
+    "artist": "Mercedes Ferrer",
+    "album": "Intermedio 1986-2006",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mercedes Ferrer/Intermedio 1986-2006/16 Fantasía.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mercedes Ferrer/Intermedio 1986-2006/16 Fantasía.jpg",
+    "duration": "1:55"
+  },
+  {
+    "id": 40,
+    "title": "Pensamiento de caracol",
+    "artist": "Gustavo Pena - El Príncipe",
+    "album": "La Fuente de la Juventud",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena - El Príncipe/La Fuente de la Juventud/1-10 Pensamiento de caracol.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Gustavo Pena - El Príncipe/La Fuente de la Juventud/1-10 Pensamiento de caracol.jpg",
+    "duration": "2:32"
+  },
+  {
+    "id": 41,
+    "title": "Ese Arar en el Mar (Remastered 2024)",
+    "artist": "Chabuca Granda",
+    "album": "Voz y Vena de Chabuca Granda (Remastered 2024)",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Chabuca Granda/Voz y Vena de Chabuca Granda (Remastered 2024)/05 Ese Arar en el Mar (Remastered 2024).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Chabuca Granda/Voz y Vena de Chabuca Granda (Remastered 2024)/05 Ese Arar en el Mar (Remastered 2024).jpg",
+    "duration": "2:46"
+  },
+  {
+    "id": 42,
+    "title": "Rie Chinito",
+    "artist": "Perota Chingo",
+    "album": "Perotá Chingó",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Perota Chingo/Perotá Chingó/08 Rie Chinito.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Perota Chingo/Perotá Chingó/08 Rie Chinito.jpg",
+    "duration": "5:09"
+  },
+  {
+    "id": 43,
+    "title": "Cautela",
+    "artist": "José Vicentes",
+    "album": "Cautela",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/José Vicentes/Cautela/1-01 Cautela.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/José Vicentes/Cautela/1-01 Cautela.jpg",
+    "duration": "3:48"
+  },
+  {
+    "id": 44,
+    "title": "Por Mi Puerta No Lo Pasen",
+    "artist": "ROSALÍA",
+    "album": "Los Ángeles",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/07 Por Mi Puerta No Lo Pasen.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/07 Por Mi Puerta No Lo Pasen.jpg",
+    "duration": "4:39"
+  },
+  {
+    "id": 45,
+    "title": "Toda la Gente",
+    "artist": "Damian Nueva",
+    "album": "Orisun",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Damian Nueva/Orisun/1-01 Toda la Gente.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Damian Nueva/Orisun/1-01 Toda la Gente.jpg",
+    "duration": "2:34"
+  },
+  {
+    "id": 46,
+    "title": "Toda una Vida",
+    "artist": "Pedro Guerra",
+    "album": "Contigo En La Distancia",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Pedro Guerra/Contigo En La Distancia/09 Toda una Vida.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Pedro Guerra/Contigo En La Distancia/09 Toda una Vida.jpg",
+    "duration": "1:55"
+  },
+  {
+    "id": 47,
+    "title": "Gran Remera",
+    "artist": "Mora y los Metegoles",
+    "album": "Suerte",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mora y los Metegoles/Suerte/04 Gran Remera.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Mora y los Metegoles/Suerte/04 Gran Remera.jpg",
+    "duration": "1:17"
+  },
+  {
+    "id": 48,
+    "title": "Selva Negra",
+    "artist": "La La",
+    "album": "Rosa",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/La La/Rosa/12 Selva Negra.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/La La/Rosa/12 Selva Negra.jpg",
+    "duration": "3:01"
+  },
+  {
+    "id": 49,
+    "title": "Si tan solo",
+    "artist": "Angélique Ionatos",
+    "album": "Alas pa' Volar",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Angélique Ionatos/Alas pa' Volar/01 Si tan solo.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Angélique Ionatos/Alas pa' Volar/01 Si tan solo.jpg",
+    "duration": "3:12"
+  },
+  {
+    "id": 50,
+    "title": "Despedida",
+    "artist": "Simon Diaz",
+    "album": "Golpe y Pasaje",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Simon Diaz/Golpe y Pasaje/11 Despedida.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Simon Diaz/Golpe y Pasaje/11 Despedida.jpg",
+    "duration": "2:37"
+  },
+  {
+    "id": 51,
+    "title": "Plantar un bosque",
+    "artist": "Laaza",
+    "album": "Canciones para olvidarte",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Laaza/Canciones para olvidarte/04 Plantar un bosque.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Laaza/Canciones para olvidarte/04 Plantar un bosque.jpg",
+    "duration": "3:27"
+  },
+  {
+    "id": 52,
+    "title": "S.O.S.",
+    "artist": "Falete",
+    "album": "Amar Duele",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Falete/Amar Duele/02 S.O.S..mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Falete/Amar Duele/02 S.O.S..jpg",
+    "duration": "3:46"
+  },
+  {
+    "id": 53,
+    "title": "Óleo de Mujer Con Sombrero",
+    "artist": "Silvio Rodriguez",
+    "album": "Al Final de Este Viaje...",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Silvio Rodriguez/Al Final de Este Viaje/07 Óleo de Mujer Con Sombrero.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Silvio Rodriguez/Al Final de Este Viaje/07 Óleo de Mujer Con Sombrero.jpg",
+    "duration": "2:24"
+  },
+  {
+    "id": 54,
+    "title": "La jardinera",
+    "artist": "Violeta Parra",
+    "album": "El Folklore Y La Pasión",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Violeta Parra/30 cantos populares de Chile/1-01 La jardinera.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Violeta Parra/30 cantos populares de Chile/1-01 La jardinera.jpg",
+    "duration": "2:58"
+  },
+  {
+    "id": 55,
+    "title": "Cartoncito",
+    "artist": "Diego Lorenzini",
+    "album": "Pino",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Diego Lorenzini/Pino/13 Cartoncito.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Diego Lorenzini/Pino/13 Cartoncito.jpg",
+    "duration": "2:03"
+  },
+  {
+    "id": 56,
+    "title": "Pequeña Serenata Diurna",
+    "artist": "Silvio Rodriguez",
+    "album": "Días y Flores",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Silvio Rodriguez/Días y Flores/06 Pequeña Serenata Diurna.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Silvio Rodriguez/Días y Flores/06 Pequeña Serenata Diurna.jpg",
+    "duration": "2:46"
+  },
+  {
+    "id": 57,
+    "title": "RAVE KALIFA",
+    "artist": "EDDI CIRCA",
+    "album": "CIRCA VOLUMEN I",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/EDDI CIRCA/CIRCA VOLUMEN I/08 RAVE KALIFA.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/EDDI CIRCA/CIRCA VOLUMEN I/08 RAVE KALIFA.jpg",
+    "duration": "4:35"
+  },
+  {
+    "id": 58,
+    "title": "EL DÍA QUE PERDÍ MI JUVENTUD",
+    "artist": "Nathy Peluso",
+    "album": "GRASA",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nathy Peluso/GRASA/12 EL DÍA QUE PERDÍ MI JUVENTUD.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nathy Peluso/GRASA/12 EL DÍA QUE PERDÍ MI JUVENTUD.jpg",
+    "duration": "2:48"
+  },
+  {
+    "id": 59,
+    "title": "Besame Mucho",
+    "artist": "Lisa Ono",
+    "album": "Romance Latino Vol.3 -Cuba Caliente Y Su Ritmo Sabroso-",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Lisa Ono/Romance Latino Vol.3 -Cuba Caliente Y Su Ritmo Sabroso-/1-04 Besame Mucho.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Lisa Ono/Romance Latino Vol.3 -Cuba Caliente Y Su Ritmo Sabroso-/1-04 Besame Mucho.jpg",
+    "duration": "3:20"
+  },
+  {
+    "id": 60,
+    "title": "Muy Lejos Te Vas",
+    "artist": "El Kinto",
+    "album": "Circa 1968",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/El Kinto/Circa 1968/02 Muy Lejos Te Vas.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/El Kinto/Circa 1968/02 Muy Lejos Te Vas.jpg",
+    "duration": "3:29"
+  },
+  {
+    "id": 61,
+    "title": "Si Tú Supieras Compañero",
+    "artist": "ROSALÍA",
+    "album": "Los Ángeles",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/01 Si Tú Supieras Compañero.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/ROSALÍA/Los Ángeles/01 Si Tú Supieras Compañero.jpg",
+    "duration": "6:04"
+  },
+  {
+    "id": 62,
+    "title": "Sin Mí",
+    "artist": "Carlota",
+    "album": "Hola!",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Carlota/Hola!/03 Sin Mí.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Carlota/Hola!/03 Sin Mí.jpg",
+    "duration": "2:36"
+  },
+  {
+    "id": 63,
+    "title": "Solo Tu (Remaster 1998)",
+    "artist": "Matia Bazar",
+    "album": "Matia Bazar: The Best Of Platinum",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Matia Bazar/Matia Bazar  The Best Of Platinum/05 Solo Tu (Remaster 1998).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Matia Bazar/Matia Bazar  The Best Of Platinum/05 Solo Tu (Remaster 1998).jpg",
+    "duration": "3:29"
+  },
+  {
+    "id": 64,
+    "title": "Guitarra dimelo tu",
+    "artist": "Nati Mistral",
+    "album": "Naty Mistral: En el arte",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nati Mistral/Naty Mistral  En el arte/14 Guitarra dimelo tu.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Nati Mistral/Naty Mistral  En el arte/14 Guitarra dimelo tu.jpg",
+    "duration": "3:30"
+  },
+  {
+    "id": 65,
+    "title": "Cuando se nos mueren los amores",
+    "artist": "Amaia Miranda",
+    "album": "Cuando se nos mueren los amores",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Amaia Miranda/Cuando se nos mueren los amores/02 Cuando se nos mueren los amores.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Amaia Miranda/Cuando se nos mueren los amores/02 Cuando se nos mueren los amores.jpg",
+    "duration": "2:49"
+  },
+  {
+    "id": 66,
+    "title": "Noche En Vela",
+    "artist": "Tati Falco",
+    "album": "Noche En Vela",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Tati Falco/Noche En Vela/01 Noche En Vela.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Tati Falco/Noche En Vela/01 Noche En Vela.jpg",
+    "duration": "3:29"
+  },
+  {
+    "id": 67,
+    "title": "Seminare (2021 Remasterizado)",
+    "artist": "Serú Girán",
+    "album": "Serú Girán  (Remasterizado 2021)",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Serú Girán/Serú Girán  (Remasterizado 2021)/06 Seminare (2021 Remasterizado).mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Serú Girán/Serú Girán  (Remasterizado 2021)/06 Seminare (2021 Remasterizado).jpg",
+    "duration": "3:22"
+  }
+]

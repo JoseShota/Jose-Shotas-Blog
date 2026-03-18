@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Clock, Music, ChevronLeft } from 'lucide-react';
 import playlistData from '../data/playlist.json';
+import playlistVol2 from '../data/playlist-vol2.json';
 
 // TUS COLECCIONES
 const COLLECTIONS = [
@@ -13,6 +14,16 @@ const COLLECTIONS = [
     tracks: playlistData,
     totalDuration: "11h 16m 09s",
     trackCount: playlistData.length
+  },
+  {
+    id: 'vol2',
+    title: "Te Miré en Mí",
+    description:
+      "La primera vez que vi Paris, Texas, quedé pasmado. La escena de la cabina, cuando nos damos cuenta de la situación. Me gustaría creer que la nostalgia previa al desencanto de la situación está lleno de recuerdos. La lista trata de acompañar estos recuerdos.",
+    cover: "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/images/playlist-cover-vol2.jpg",
+    tracks: playlistVol2,
+    totalDuration: "3h 41m 51s",
+    trackCount: playlistVol2.length
   },
 ];
 
@@ -110,7 +121,7 @@ export default function MusicGallery() {
               </div>
 
               <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 text-[10px] uppercase tracking-widest border border-white/10 backdrop-blur-sm cueva-muted">
-                VOL. {playlist.id === 'vol1' ? '01' : '02'}
+                VOL. {(playlist.id.replace('vol', '')).padStart(2, '0')}
               </div>
             </div>
 
