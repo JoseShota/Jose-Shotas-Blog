@@ -19,7 +19,7 @@ const COLLECTIONS = [
     id: 'vol2',
     title: "Te Miré en Mí",
     description:
-      "Nunca olvidaré su voz. 'Ya cállate', decía con esa mueca tan peculiar. Del folk y otras misceláneas latinas, te miré en mí."
+      "Nunca olvidaré su voz. 'Ya cállate', decía con esa mueca tan peculiar. Del folk y otras misceláneas latinas, te miré en mí.",
     cover: "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/images/playlist-cover-vol2.jpg",
     tracks: playlistVol2,
     totalDuration: "3h 45m 11s",
