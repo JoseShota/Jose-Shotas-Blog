@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 const STORAGE_KEY = 'jose-bitacora-v1';
+const JOSE_PASSWORD = 'Abadacadabra';
+const JOSE_ICON_A = "/images/Jose Shota's Icon.png";
+const JOSE_ICON_B = "/images/Jose Shota's Other Icon.png";
 
 const INITIAL_POSTS = [
   {
@@ -39,6 +42,12 @@ export default function BitacoraVirtual() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [mood, setMood] = useState('archivo');
+  const [wantsEditor, setWantsEditor] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLockedOut, setIsLockedOut] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [gateMessage, setGateMessage] = useState('');
+  const [iconFrame, setIconFrame] = useState(0);
 
   useEffect(() => {
     try {
@@ -54,6 +63,14 @@ export default function BitacoraVirtual() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
   }, [posts]);
+
+  useEffect(() => {
+    if (!wantsEditor || isAuthorized || isLockedOut) return;
+    const timer = setInterval(() => {
+      setIconFrame((f) => (f === 0 ? 1 : 0));
+    }, 550);
+    return () => clearInterval(timer);
+  }, [wantsEditor, isAuthorized, isLockedOut]);
 
   const orderedPosts = useMemo(
     () =>
@@ -85,6 +102,23 @@ export default function BitacoraVirtual() {
     setPosts((prev) => prev.filter((post) => post.id !== id));
   };
 
+  const unlockEditor = (e) => {
+    e.preventDefault();
+    if (isLockedOut) return;
+    if (passwordInput === JOSE_PASSWORD) {
+      setIsAuthorized(true);
+      setMode('editor');
+      setGateMessage('Acceso concedido. Bienvenido, Jose Shota.');
+      setPasswordInput('');
+      return;
+    }
+    setIsLockedOut(true);
+    setWantsEditor(false);
+    setMode('public');
+    setGateMessage('Sorry you are not Jose Shota, and if so, what a dumb');
+    setPasswordInput('');
+  };
+
   return (
     <section style={{ display: 'grid', gap: '1.25rem' }}>
       <div
@@ -102,25 +136,102 @@ export default function BitacoraVirtual() {
           Bitacora Virtual / {mode === 'editor' ? 'Vista Editor' : 'Vista Publica'}
         </span>
 
-        <button
-          type="button"
-          onClick={() => setMode((m) => (m === 'editor' ? 'public' : 'editor'))}
-          style={{
-            border: '1px solid var(--color-highlight)',
-            background: 'transparent',
-            color: 'var(--color-highlight)',
-            padding: '0.3rem 0.7rem',
-            cursor: 'pointer',
-            textTransform: 'uppercase',
-            fontSize: '0.75rem',
-            letterSpacing: '0.08em',
-          }}
-        >
-          Cambiar a {mode === 'editor' ? 'vista publica' : 'vista editor'}
-        </button>
+        {isAuthorized ? (
+          <button
+            type="button"
+            onClick={() => setMode((m) => (m === 'editor' ? 'public' : 'editor'))}
+            style={{
+              border: '1px solid var(--color-highlight)',
+              background: 'transparent',
+              color: 'var(--color-highlight)',
+              padding: '0.3rem 0.7rem',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              fontSize: '0.75rem',
+              letterSpacing: '0.08em',
+            }}
+          >
+            Cambiar a {mode === 'editor' ? 'vista publica' : 'vista editor'}
+          </button>
+        ) : (
+          <label style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', fontSize: '0.8rem' }}>
+            <input
+              type="checkbox"
+              checked={wantsEditor}
+              disabled={isLockedOut}
+              onChange={(e) => {
+                setWantsEditor(e.target.checked);
+                setGateMessage('');
+              }}
+            />
+            Only Jose Shota can access
+          </label>
+        )}
       </div>
 
-      {mode === 'editor' && (
+      {!isAuthorized && wantsEditor && !isLockedOut && (
+        <form
+          onSubmit={unlockEditor}
+          style={{
+            display: 'grid',
+            gap: '0.75rem',
+            border: '1px solid #2c2c2c',
+            padding: '1rem',
+            background: 'rgba(20,20,20,0.65)',
+          }}
+        >
+          <div style={{ display: 'grid', justifyItems: 'center', gap: '0.6rem' }}>
+            <img
+              src={iconFrame === 0 ? JOSE_ICON_A : JOSE_ICON_B}
+              alt="Jose gatekeeper"
+              style={{
+                width: 'min(240px, 70vw)',
+                height: 'auto',
+                imageRendering: 'pixelated',
+                border: '1px solid #2f2f2f',
+                background: '#000',
+              }}
+            />
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.9rem' }}>
+              You shall not pass, unless you are Jose Shota. If so, please enter the password.
+            </p>
+          </div>
+          <label>
+            Password
+            <input
+              type="password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              required
+              style={inputStyle}
+            />
+          </label>
+          <button type="submit" style={primaryBtn}>
+            Intentar acceso
+          </button>
+        </form>
+      )}
+
+      {gateMessage && (
+        <p
+          style={{
+            border: '1px dashed #3a3a3a',
+            padding: '0.7rem 0.9rem',
+            margin: 0,
+            color: isLockedOut ? '#ef8d8d' : 'var(--color-highlight)',
+          }}
+        >
+          {gateMessage}
+        </p>
+      )}
+
+      {isLockedOut && (
+        <p style={{ margin: 0, opacity: 0.82 }}>
+          Editor access has been blocked for this session.
+        </p>
+      )}
+
+      {mode === 'editor' && isAuthorized && (
         <form
           onSubmit={addPost}
           style={{
