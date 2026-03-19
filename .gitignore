@@ -17,6 +17,12 @@ pnpm-debug.log*
 .env
 .env.production
 
+# wrangler local state
+.wrangler/
+
+# temp files from upload script
+.temp-covers/
+
 # macOS-specific files
 .DS_Store
 
