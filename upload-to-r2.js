@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 // --- CONFIGURATION ---
-const R2_BUCKET = 'YOUR_BUCKET_NAME'; // <-- Replace with your R2 bucket name
+const R2_BUCKET = 'josesmusic'; // <-- Replace with your R2 bucket name
 const M3U_PATH = 'D:\\Music\\Te miré en mí.m3u';
 const MUSIC_DIR = 'D:\\Music';
 const COVER_IMAGE = 'C:\\Users\\eljos\\Downloads\\1261037.jpg';

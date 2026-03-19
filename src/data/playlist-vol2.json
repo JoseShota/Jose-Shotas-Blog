@@ -91,15 +91,6 @@
   },
   {
     "id": 11,
-    "title": "No Te Vayas, Por Favor",
-    "artist": "Piero",
-    "album": "Piero (Mi Viejo)",
-    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Piero (Mi Viejo)/1-15 No Te Vayas, Por Favor.mp3",
-    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Piero (Mi Viejo)/1-15 No Te Vayas, Por Favor.jpg",
-    "duration": ""
-  },
-  {
-    "id": 12,
     "title": "Así no más",
     "artist": "Juan Wauters",
     "album": "Who Me?",
@@ -108,7 +99,7 @@
     "duration": "1:52"
   },
   {
-    "id": 13,
+    "id": 12,
     "title": "Aquellos Ojos Verdes",
     "artist": "Mapache",
     "album": "Mapache",
@@ -117,7 +108,7 @@
     "duration": "2:42"
   },
   {
-    "id": 14,
+    "id": 13,
     "title": "Lucha De Gigantes",
     "artist": "Nacha Pop",
     "album": "El Momento",
@@ -126,7 +117,7 @@
     "duration": "4:08"
   },
   {
-    "id": 15,
+    "id": 14,
     "title": "P.F.",
     "artist": "Diego Lorenzini",
     "album": "Trenzas Ad Honorem",
@@ -135,7 +126,7 @@
     "duration": "3:47"
   },
   {
-    "id": 16,
+    "id": 15,
     "title": "A un minuto de ti",
     "artist": "Mikel Erentxun",
     "album": "Naufragios",
@@ -144,13 +135,22 @@
     "duration": "3:53"
   },
   {
-    "id": 17,
+    "id": 16,
     "title": "Una décima de segundo  (Live)",
     "artist": "Antonio Vega",
     "album": "Básico",
     "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Antonio Vega/Básico/10 Una décima de segundo  (Live).mp3",
     "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Antonio Vega/Básico/10 Una décima de segundo  (Live).jpg",
     "duration": "3:09"
+  },
+  {
+    "id": 17,
+    "title": "No Te Vayas, Por Favor",
+    "artist": "Piero",
+    "album": "Mi Viejo",
+    "src": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Mi Viejo/1-15 No Te Vayas, Por Favor.mp3",
+    "cover": "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/Piero/Mi Viejo/1-15 No Te Vayas, Por Favor.jpg",
+    "duration": "3:20"
   },
   {
     "id": 18,
