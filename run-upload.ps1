@@ -39,9 +39,9 @@ npx wrangler r2 object put "josesmusic/Mapache/Mapache/03 Aquellos Ojos Verdes.j
 Write-Host "[13/67] Nacha Pop/El Momento/07 Lucha De Gigantes.mp3" -ForegroundColor Yellow
 npx wrangler r2 object put "josesmusic/Nacha Pop/El Momento/07 Lucha De Gigantes.mp3" --file="D:\Music\Nacha Pop\El Momento\07 Lucha De Gigantes.mp3" --remote
 npx wrangler r2 object put "josesmusic/Nacha Pop/El Momento/07 Lucha De Gigantes.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-13.jpg" --remote
-Write-Host "[14/67] Diego Lorenzini/Trenzas Ad Honorem/05 P.F..mp3" -ForegroundColor Yellow
-npx wrangler r2 object put "josesmusic/Diego Lorenzini/Trenzas Ad Honorem/05 P.F..mp3" --file="D:\Music\Diego Lorenzini\Trenzas Ad Honorem\05 P.F..mp3" --remote
-npx wrangler r2 object put "josesmusic/Diego Lorenzini/Trenzas Ad Honorem/05 P.F..jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-14.jpg" --remote
+Write-Host "[14/67] Diego Lorenzini/Trenzas Ad Honorem/05 P.F.mp3" -ForegroundColor Yellow
+npx wrangler r2 object put "josesmusic/Diego Lorenzini/Trenzas Ad Honorem/05 P.F.mp3" --file="D:\Music\Diego Lorenzini\Trenzas Ad Honorem\05 P.F..mp3" --remote
+npx wrangler r2 object put "josesmusic/Diego Lorenzini/Trenzas Ad Honorem/05 P.F.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-14.jpg" --remote
 Write-Host "[15/67] Mikel Erentxun/Naufragios/01 A un minuto de ti.mp3" -ForegroundColor Yellow
 npx wrangler r2 object put "josesmusic/Mikel Erentxun/Naufragios/01 A un minuto de ti.mp3" --file="D:\Music\Mikel Erentxun\Naufragios\01 A un minuto de ti.mp3" --remote
 npx wrangler r2 object put "josesmusic/Mikel Erentxun/Naufragios/01 A un minuto de ti.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-15.jpg" --remote
@@ -153,9 +153,9 @@ npx wrangler r2 object put "josesmusic/Simon Diaz/Golpe y Pasaje/11 Despedida.jp
 Write-Host "[51/67] Laaza/Canciones para olvidarte/04 Plantar un bosque.mp3" -ForegroundColor Yellow
 npx wrangler r2 object put "josesmusic/Laaza/Canciones para olvidarte/04 Plantar un bosque.mp3" --file="D:\Music\Laaza\Canciones para olvidarte\04 Plantar un bosque.mp3" --remote
 npx wrangler r2 object put "josesmusic/Laaza/Canciones para olvidarte/04 Plantar un bosque.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-51.jpg" --remote
-Write-Host "[52/67] Falete/Amar Duele/02 S.O.S..mp3" -ForegroundColor Yellow
-npx wrangler r2 object put "josesmusic/Falete/Amar Duele/02 S.O.S..mp3" --file="D:\Music\Falete\Amar Duele\02 S.O.S..mp3" --remote
-npx wrangler r2 object put "josesmusic/Falete/Amar Duele/02 S.O.S..jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-52.jpg" --remote
+Write-Host "[52/67] Falete/Amar Duele/02 S.O.S.mp3" -ForegroundColor Yellow
+npx wrangler r2 object put "josesmusic/Falete/Amar Duele/02 S.O.S.mp3" --file="D:\Music\Falete\Amar Duele\02 S.O.S..mp3" --remote
+npx wrangler r2 object put "josesmusic/Falete/Amar Duele/02 S.O.S.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-52.jpg" --remote
 Write-Host "[53/67] Silvio Rodriguez/Al Final de Este Viaje/07 Óleo de Mujer Con Sombrero.mp3" -ForegroundColor Yellow
 npx wrangler r2 object put "josesmusic/Silvio Rodriguez/Al Final de Este Viaje/07 Óleo de Mujer Con Sombrero.mp3" --file="D:\Music\Silvio Rodriguez\Al Final de Este Viaje\07 Óleo de Mujer Con Sombrero.mp3" --remote
 npx wrangler r2 object put "josesmusic/Silvio Rodriguez/Al Final de Este Viaje/07 Óleo de Mujer Con Sombrero.jpg" --file="C:\Users\eljos\OneDrive\Documents\Jose Shota's Blog\majestic-mercury\.temp-covers\track-53.jpg" --remote

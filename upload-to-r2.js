@@ -12,6 +12,7 @@ const COVER_R2_KEY = 'images/playlist-cover-vol2.jpg';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMP_DIR = path.join(__dirname, '.temp-covers');
 const PS_SCRIPT = path.join(__dirname, 'run-upload.ps1');
+const sanitizeR2Key = (key) => key.replace(/\.{2,}/g, '.');
 
 async function main() {
   if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
@@ -29,7 +30,8 @@ async function main() {
   for (let i = 0; i < lines.length; i++) {
     let relative = lines[i];
     if (relative.startsWith('.\\') || relative.startsWith('./')) relative = relative.slice(2);
-    const r2Key = relative.replace(/\\/g, '/');
+    const relativeNormalized = relative.replace(/\\/g, '/');
+    const r2Key = sanitizeR2Key(relativeNormalized);
     const localPath = path.join(MUSIC_DIR, relative);
 
     cmds.push(`Write-Host "[${i + 1}/${lines.length}] ${r2Key}" -ForegroundColor Yellow`);

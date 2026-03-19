@@ -20,6 +20,8 @@ const stripTrackNumber = (filename) => {
   return filename.replace(/^\d+-?\d*\s+/, '');
 };
 
+const sanitizeR2Key = (key) => key.replace(/\.{2,}/g, '.');
+
 async function generate() {
   const raw = fs.readFileSync(M3U_PATH, 'utf8');
   const lines = raw.split(/\r?\n/).filter(l => l.trim() && !l.startsWith('#'));
@@ -30,16 +32,17 @@ async function generate() {
   for (let i = 0; i < lines.length; i++) {
     let relative = lines[i];
     if (relative.startsWith('.\\') || relative.startsWith('./')) relative = relative.slice(2);
-    relative = relative.replace(/\\/g, '/');
-    const localPath = path.join(MUSIC_DIR, relative.replace(/\//g, '\\'));
-    const parts = relative.split('/');
+    const originalRelative = relative.replace(/\\/g, '/');
+    const r2Relative = sanitizeR2Key(originalRelative);
+    const localPath = path.join(MUSIC_DIR, originalRelative.replace(/\//g, '\\'));
+    const parts = originalRelative.split('/');
 
     const artist = parts[0] || 'Unknown Artist';
     const album = parts[1] || 'Unknown Album';
     const filename = parts[parts.length - 1].replace(/\.mp3$/i, '');
     const fallbackTitle = stripTrackNumber(filename);
 
-    const srcUrl = `${R2_BASE}/${relative}`;
+    const srcUrl = `${R2_BASE}/${r2Relative}`;
     const coverUrl = srcUrl.replace(/\.mp3$/i, '.jpg');
 
     let title = fallbackTitle;
