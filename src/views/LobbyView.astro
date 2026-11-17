@@ -26,15 +26,15 @@ const lastPost = posts[0];
 
 const lastUpdate = new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
-const rooms: { key: SectionKey; count: number; unit: { es: string; en: string } }[] = [
-  { key: 'bitacora', count: posts.length, unit: { es: 'escritos', en: 'writings' } },
-  { key: 'musica', count: curaduria.length, unit: { es: 'colecciones', en: 'collections' } },
-  { key: 'videos', count: museo.length, unit: { es: 'piezas', en: 'pieces' } },
-  { key: 'cine', count: films.length, unit: { es: 'películas', en: 'films' } },
-  { key: 'libros', count: books.length, unit: { es: 'libros', en: 'books' } },
-  { key: 'estudio', count: studies.length, unit: { es: 'temas', en: 'topics' } },
-  { key: 'recomendaciones', count: recs.length, unit: { es: 'hallazgos', en: 'finds' } },
-  { key: 'sobre', count: 0, unit: { es: '', en: '' } },
+const rooms: { key: SectionKey; count: number; unit: { es: [string, string]; en: [string, string] } }[] = [
+  { key: 'bitacora', count: posts.length, unit: { es: ['escrito', 'escritos'], en: ['writing', 'writings'] } },
+  { key: 'musica', count: curaduria.length, unit: { es: ['colección', 'colecciones'], en: ['collection', 'collections'] } },
+  { key: 'videos', count: museo.length, unit: { es: ['pieza', 'piezas'], en: ['piece', 'pieces'] } },
+  { key: 'cine', count: films.length, unit: { es: ['película', 'películas'], en: ['film', 'films'] } },
+  { key: 'libros', count: books.length, unit: { es: ['libro', 'libros'], en: ['book', 'books'] } },
+  { key: 'estudio', count: studies.length, unit: { es: ['tema', 'temas'], en: ['topic', 'topics'] } },
+  { key: 'recomendaciones', count: recs.length, unit: { es: ['hallazgo', 'hallazgos'], en: ['find', 'finds'] } },
+  { key: 'sobre', count: 0, unit: { es: ['', ''], en: ['', ''] } },
 ];
 
 const greetings = ['Hola, cibernauta', 'Hello, netizen', 'こんにちは、ネット市民'];
@@ -71,7 +71,7 @@ const ordered = lang === 'en' ? [greetings[1], greetings[0], greetings[2]] : gre
             <a href={localize(SECTIONS[r.key].path, lang)}>
               <span class="room-name">{SECTIONS[r.key][lang]}</span>
               <span class="room-dots" aria-hidden="true"></span>
-              <span class="room-count">{r.unit[lang] ? `${r.count} ${r.unit[lang]}` : '→'}</span>
+              <span class="room-count">{r.unit[lang][0] ? `${r.count} ${r.unit[lang][r.count === 1 ? 0 : 1]}` : '→'}</span>
             </a>
           </li>
         ))}

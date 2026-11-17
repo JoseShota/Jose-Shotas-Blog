@@ -365,8 +365,7 @@ function Dossier({ collection, track, meta, t, lang, onShare }) {
       <h3 className="mg-dossier-title">{track.title}</h3>
       <dl className="mg-facts">
         <dt>{t.artist}</dt><dd>{track.artist}</dd>
-        <dt>{t.album}</dt><dd>{track.album}</dd>
-        {year && <><dt>{t.year}</dt><dd>{year}</dd></>}
+        <dt>{t.album}</dt><dd>{track.album}{year && <span className="mg-muted"> ({year})</span>}</dd>
         <dt>{t.duration}</dt><dd>{track.duration}</dd>
       </dl>
 

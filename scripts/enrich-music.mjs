@@ -56,9 +56,14 @@ async function getJson(url, { mb = false, tries = 4 } = {}) {
 const norm = (s = '') =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const cleanTitle = (t) =>
-  t.replace(/\s*[([][^)\]]*\b(feat|ft|with|live|en vivo|remaster(ed)?|demo|version|versión|mix|instrumental|edit|mono|stereo)\b[^)\]]*[)\]]/gi, '')
+  t.replace(/\s*[([][^)\]]*\b(feat|ft|with|con|colaboraci[oó]n|live|en vivo|remaster(ed)?|demo|version|versión|mix|instrumental|edit|mono|stereo)\b[^)\]]*[)\]]/gi, '')
    .replace(/\s+-\s+(\d{4}\s+)?(remaster(ed)?|live|en vivo|single version|radio edit).*$/i, '')
    .trim();
+const cleanAlbum = (a = '') =>
+  cleanTitle(a)
+    .replace(/\s*[([][^)\]]*\b(deluxe|edition|edición|anniversary|aniversario|expanded|bonus|remaster(ed)?|reissue)\b[^)\]]*[)\]]/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 const firstArtist = (a) => a.split(/,|;|\s+feat\.?\s+|\s+ft\.?\s+|\s+x\s+/i)[0].trim();
 const luceneEscape = (s) => s.replace(/([+\-&|!(){}[\]^"~*?:\\/])/g, '\\$1');
 
@@ -156,26 +161,46 @@ async function main() {
     const artistName = firstArtist(t.artist);
     const rec = await findRecording(t.title, artistName);
     let artistMbid = null;
-    let year = null;
-    let rgId = null;
     if (rec) {
       const credit = (rec['artist-credit'] || []).find((c) => norm(c.name || c.artist?.name) === norm(artistName))
         || rec['artist-credit']?.[0];
       artistMbid = credit?.artist?.id || null;
-      year = (rec['first-release-date'] || '').slice(0, 4) || null;
-      const albumNorm = norm(t.album).slice(0, 10);
-      const release = (rec.releases || []).find((r) => norm(r.title).startsWith(albumNorm)) || rec.releases?.[0];
-      rgId = release?.['release-group']?.id || null;
     } else {
       const a = await findArtistByName(artistName);
       artistMbid = a?.id || null;
     }
-    tracks[`${vol}:${t.id}`] = { artist: artistMbid, year, releaseGroup: rgId, recording: rec?.id || null };
+    // El álbum y el año se verifican aparte (ver abajo): la grabación encontrada
+    // puede ser de un recopilatorio y dar datos de otro disco.
+    tracks[`${vol}:${t.id}`] = { artist: artistMbid, year: null, releaseGroup: null, recording: rec?.id || null };
     if (artistMbid && !artists[artistMbid]) artists[artistMbid] = null;
-    if (rgId && !releaseGroups[rgId]) releaseGroups[rgId] = null;
-    console.log(`[${n}/${all.length}] ${rec ? '✓' : artistMbid ? '~' : '✗'} ${t.artist} — ${t.title}${year ? ` (${year})` : ''}`);
+    console.log(`[${n}/${all.length}] ${rec ? '✓' : artistMbid ? '~' : '✗'} ${t.artist} — ${t.title}`);
     if (n % 10 === 0) saveCache();
   }
+
+  // Álbum verificado: se busca dentro de la discografía del artista ya identificado
+  // y solo se acepta si el título coincide exactamente (sin "Deluxe", "Remaster"…).
+  let verified = 0;
+  for (const { vol, t } of all) {
+    const entry = tracks[`${vol}:${t.id}`];
+    if (!entry.artist) continue;
+    const album = cleanAlbum(t.album);
+    if (!album) continue;
+    const q = `releasegroup:"${luceneEscape(album)}" AND arid:${entry.artist}`;
+    const data = await getJson(`${MB}/release-group/?query=${encodeURIComponent(q)}&fmt=json&limit=10`, { mb: true });
+    const target = norm(album);
+    // Si hay empates (álbum y sencillo con el mismo nombre), preferimos el álbum
+    // y, entre álbumes, la edición más antigua.
+    const rank = (r) => (r['primary-type'] === 'Album' ? 0 : r['primary-type'] === 'EP' ? 1 : 2);
+    const rg = (data?.['release-groups'] || [])
+      .filter((r) => norm(cleanAlbum(r.title)) === target)
+      .sort((a, b) => rank(a) - rank(b) || (a['first-release-date'] || '9999').localeCompare(b['first-release-date'] || '9999'))[0];
+    if (!rg) continue;
+    entry.releaseGroup = rg.id;
+    entry.year = rg['first-release-date']?.slice(0, 4) || null;
+    releaseGroups[rg.id] ||= null;
+    verified++;
+  }
+  console.log(`Álbumes verificados: ${verified}`);
 
   console.log(`\nArtistas: ${Object.keys(artists).length} · Álbumes: ${Object.keys(releaseGroups).length}`);
   for (const mbid of Object.keys(artists)) {

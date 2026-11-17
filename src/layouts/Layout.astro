@@ -30,12 +30,14 @@ const basePath = unlocalize(Astro.url.pathname);
 const altHref = alternate ?? localize(basePath, other);
 const selfHref = localize(basePath, lang);
 const urls = { es: lang === 'es' ? selfHref : altHref, en: lang === 'en' ? selfHref : altHref };
+// URLs absolutas con barra final, igual que en el sitemap
+const abs = (path: string) => new URL(path.endsWith('/') ? path : `${path}/`, Astro.site).href;
 
 const fullTitle = section === 'lobby' ? `${site.name} — ${site.by}` : `${title} — ${site.name}`;
 const desc = description || (lang === 'es'
   ? 'Archivo personal de Jose Shōta: escritos, curaduría musical, videos, películas, libros y estudios.'
   : "Jose Shōta's personal archive: writings, music curation, videos, films, books and studies.");
-const canonicalUrl = new URL(canonical || selfHref, Astro.site).href;
+const canonicalUrl = abs(canonical || selfHref);
 const ogImage = new URL(image || '/og-default.png', Astro.site).href;
 
 // Datos mínimos de las colecciones para el mini-reproductor
@@ -56,9 +58,9 @@ const playerCollections = Object.fromEntries(
     <title>{fullTitle}</title>
     <meta name="description" content={desc} />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="alternate" hreflang="es" href={new URL(urls.es, Astro.site).href} />
-    <link rel="alternate" hreflang="en" href={new URL(urls.en, Astro.site).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL(urls.es, Astro.site).href} />
+    <link rel="alternate" hreflang="es" href={abs(urls.es)} />
+    <link rel="alternate" hreflang="en" href={abs(urls.en)} />
+    <link rel="alternate" hreflang="x-default" href={abs(urls.es)} />
     <link rel="alternate" type="application/rss+xml" title={`${SECTIONS.bitacora[lang]} — ${site.name}`} href={localize('/rss.xml', lang)} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {noindex && <meta name="robots" content="noindex" />}

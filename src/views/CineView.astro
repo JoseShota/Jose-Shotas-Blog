@@ -20,7 +20,7 @@ const avg = films.length ? Math.round((films.reduce((s, f) => s + f.data.calific
       <>
         <div class="toolbar">
           <span class="stats">
-            {films.length} {lang === 'es' ? 'películas' : 'films'} · {lang === 'es' ? 'luna promedio' : 'average moon'}
+            {films.length} {lang === 'es' ? (films.length === 1 ? 'película' : 'películas') : (films.length === 1 ? 'film' : 'films')} · {lang === 'es' ? 'luna promedio' : 'average moon'}
             <Moons value={avg} lang={lang} size={13} />
           </span>
           <div class="chip-row" role="group" aria-label={t.sortBy} data-sort-group>
