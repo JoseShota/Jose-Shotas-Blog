@@ -1,0 +1,13 @@
+---
+const { autor } = Astro.props;
+---
+<figure class="md-epigraph">
+  <blockquote><slot /></blockquote>
+  {autor && <figcaption>— {autor}</figcaption>}
+</figure>
+<style>
+  .md-epigraph { margin: 2em 0 2em auto; max-width: 30rem; text-align: right; }
+  .md-epigraph blockquote { border: 0; padding: 0; margin: 0; font-style: italic; color: #cfcfcf; }
+  .md-epigraph blockquote :global(p) { margin: 0; }
+  figcaption { font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-highlight); margin-top: 0.4rem; }
+</style>

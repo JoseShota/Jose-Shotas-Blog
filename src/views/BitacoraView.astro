@@ -1,0 +1,53 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { bitacoraFor } from '../lib/content';
+import { SECTIONS, localize, ui, formatDate, readingMinutes, LANG_TAG, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const posts = await bitacoraFor(lang);
+const MOOD_COLOR = { archivo: '#9aa0a6', brillo: '#23909e', sombra: '#c58f3d', glitch: '#b56bff' };
+---
+<Layout title={SECTIONS.bitacora[lang]} lang={lang} section="bitacora" description={t.bitacoraIntro}>
+  <h2 class="section-kicker">&gt; {lang === 'es' ? 'BITÁCORA / MEMORIA_ACTIVA' : 'LOGBOOK / ACTIVE_MEMORY'}</h2>
+  <p class="section-intro">{t.bitacoraIntro}</p>
+
+  <div class="section-body">
+    {posts.length === 0 ? <p class="empty-room">{t.empty}</p> : (
+      <ol class="posts" reversed>
+        {posts.map((p) => (
+          <li class="post" style={`--mood:${MOOD_COLOR[p.data.estado]}`}>
+            <a href={localize(`/bitacora/${p.id}`, lang)} class="post-link">
+              {p.data.portada && <Image src={p.data.portada} alt="" width={240} height={160} class="post-cover" />}
+              <div class="post-main">
+                <div class="post-meta">
+                  <time datetime={p.data.fecha.toISOString()}>{formatDate(p.data.fecha, lang)}</time>
+                  <span class="tag" style="border-color:var(--mood);color:var(--mood)">{t.moods[p.data.estado]}</span>
+                  <span class="tag">{LANG_TAG[p.data.idioma][lang]}</span>
+                  <span>{t.readingTime(readingMinutes(p.body))}</span>
+                  {p.data.borrador && <span class="tag tag-accent">DRAFT</span>}
+                </div>
+                <h3 class="post-title">{p.data.titulo}</h3>
+                {p.data.resumen && <p class="post-excerpt">{p.data.resumen}</p>}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ol>
+    )}
+  </div>
+</Layout>
+<style>
+  .posts { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.2rem; }
+  .post { border-left: 2px solid var(--mood); }
+  .post-link { display: flex; gap: 1.2rem; padding: 0.4rem 0 0.4rem 1.1rem; text-decoration: none; color: inherit; }
+  .post-cover { width: 160px; height: 107px; object-fit: cover; border: 1px solid var(--color-line); filter: grayscale(1); transition: filter .4s; flex-shrink: 0; }
+  .post-link:hover .post-cover { filter: none; }
+  .post-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; font-size: 0.75rem; color: var(--color-text-accent); }
+  .post-title { font-weight: normal; font-size: 1.25rem; margin: 0.35rem 0 0.25rem; color: var(--color-text-light); }
+  .post-link:hover .post-title { color: var(--color-highlight); }
+  .post-excerpt { margin: 0; font-family: var(--font-read); color: #bdbdbd; max-width: 65ch; }
+  @media (max-width: 600px) { .post-cover { display: none; } }
+</style>

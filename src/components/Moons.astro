@@ -1,0 +1,34 @@
+---
+// Calificación en escala lunar: 5 lunas, cada una llena, a medias o en sombra.
+import { moonPhases, moonName } from '../lib/moons';
+import type { Lang } from '../lib/i18n';
+
+interface Props { value: number; lang: Lang; size?: number; showName?: boolean }
+const { value, lang, size = 16, showName = true } = Astro.props;
+const phases = moonPhases(value);
+const name = moonName(value, lang);
+const label = lang === 'es' ? `${value} de 5 lunas — ${name}` : `${value} out of 5 moons — ${name}`;
+const uid = `m${Math.random().toString(36).slice(2, 8)}`;
+---
+<span class="moons" role="img" aria-label={label} title={label} style={`--moon-size:${size}px`}>
+  <span class="moons-row" aria-hidden="true">
+    {phases.map((p, i) => (
+      <svg class:list={['moon', `moon-${p}`]} viewBox="0 0 20 20">
+        <defs>
+          <clipPath id={`${uid}-${i}`}><rect x="0" y="0" width="10" height="20" /></clipPath>
+        </defs>
+        {/* disco en sombra con borde */}
+        <circle cx="10" cy="10" r="8.5" fill="#1a1a1a" stroke="#555" stroke-width="1" />
+        {p === 'full' && <circle cx="10" cy="10" r="8.5" fill="#e9e2be" />}
+        {p === 'half' && <circle class="moon-half-lit" cx="10" cy="10" r="8.5" fill="#e9e2be" clip-path={`url(#${uid}-${i})`} />}
+        {/* cráteres sutiles */}
+        {p !== 'empty' && <>
+          <circle cx="7" cy="7.5" r="1.4" fill="#000" opacity="0.12" />
+          <circle cx="6.5" cy="13" r="1" fill="#000" opacity="0.1" />
+          {p === 'full' && <circle cx="13" cy="11" r="1.8" fill="#000" opacity="0.1" />}
+        </>}
+      </svg>
+    ))}
+  </span>
+  {showName && <span class="moon-name">{name}</span>}
+</span>

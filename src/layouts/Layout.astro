@@ -1,155 +1,149 @@
 ---
-import "../styles/global.css";
-import { ui, defaultLang } from '../i18n/ui';
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { getCollection } from 'astro:content';
+import GlobalPlayer from '../components/player/GlobalPlayer.jsx';
+import { SITE, SECTIONS, NAV_GROUPS, localize, unlocalize, ui, type Lang, type SectionKey } from '../lib/i18n';
 
-const { title = "Digital Garden / Archivo Personal", fullWidth = false, hideHeader = false } = Astro.props;
-
-const lang = Astro.currentLocale || defaultLang;
-
-function t(key) {
-  return ui[lang][key] || ui[defaultLang][key];
+interface Props {
+  title: string;              // título de la página (pestaña y <h1>)
+  lang: Lang;
+  section?: SectionKey;       // sección activa en el menú
+  heading?: string | false;   // <h1> visible (por defecto = title; false = sin h1 en cabecera)
+  description?: string;
+  image?: string;             // imagen para compartir (URL absoluta o ruta)
+  alternate?: string;         // URL de esta misma página en el otro idioma
+  canonical?: string;
+  fullWidth?: boolean;
+  noindex?: boolean;
 }
 
-const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+const {
+  title, lang, section, heading = title, description, image, alternate, canonical,
+  fullWidth = false, noindex = false,
+} = Astro.props;
 
-function getPath(path) {
-    const langPath = lang === 'en' ? '/en' : '';
-    return `${baseUrl}${langPath}${path}`;
-}
+const t = ui[lang];
+const site = SITE[lang];
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const basePath = unlocalize(Astro.url.pathname);
+const altHref = alternate ?? localize(basePath, other);
+const selfHref = localize(basePath, lang);
+const urls = { es: lang === 'es' ? selfHref : altHref, en: lang === 'en' ? selfHref : altHref };
 
-function getLangSwitchPath(targetLang) {
-    const langPrefix = targetLang === 'en' ? '/en' : '';
-    if (baseUrl === '' && targetLang === 'es') return '/';
-    return `${baseUrl}${langPrefix}` || '/'; 
-}
+const fullTitle = section === 'lobby' ? `${site.name} — ${site.by}` : `${title} — ${site.name}`;
+const desc = description || (lang === 'es'
+  ? 'Archivo personal de Jose Shōta: escritos, curaduría musical, videos, películas, libros y estudios.'
+  : "Jose Shōta's personal archive: writings, music curation, videos, films, books and studies.");
+const canonicalUrl = new URL(canonical || selfHref, Astro.site).href;
+const ogImage = new URL(image || '/og-default.png', Astro.site).href;
+
+// Datos mínimos de las colecciones para el mini-reproductor
+const curaduria = await getCollection('curaduria');
+const playerCollections = Object.fromEntries(
+  curaduria.map((c) => [c.data.pistas, {
+    title: lang === 'en' && c.data.tituloEn ? c.data.tituloEn : c.data.titulo,
+    cover: c.data.portadaUrl,
+  }])
+);
 ---
 
+<!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/png" sizes="512x512" href={`${baseUrl}/favicon.png`} />
-    <link rel="apple-touch-icon" href={`${baseUrl}/favicon.png`} />
-    <title>{title}</title>
-    
-    <style>
-      :root {
-        /* Mantenemos tus colores originales de los 90s */
-        --color-bg: #111111;
-        --color-text-light: #dddddd;
-        --color-text-accent: #666666;
-        --color-highlight: #23909e; /* Un toque ámbar para resaltar */
-        --font-mono: 'Courier New', Courier, monospace;
-      }
-      
-      body {
-        background-color: var(--color-bg);
-        color: var(--color-text-light);
-        font-family: var(--font-mono);
-  
-        
-        width: 100%;             /* Ocupa todo el ancho posible */
-        max-width: 1400px;       /* Tope máximo para pantallas gigantes */
-        margin: 0 auto;          /* Centra el contenido */
-        padding: 1rem;           /* Margen interno pequeño para celulares */
-        box-sizing: border-box;  /* Asegura que el padding no rompa el ancho */
-        line-height: 1.6;
-      }
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="es" href={new URL(urls.es, Astro.site).href} />
+    <link rel="alternate" hreflang="en" href={new URL(urls.en, Astro.site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(urls.es, Astro.site).href} />
+    <link rel="alternate" type="application/rss+xml" title={`${SECTIONS.bitacora[lang]} — ${site.name}`} href={localize('/rss.xml', lang)} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {noindex && <meta name="robots" content="noindex" />}
 
-      /* === AJUSTE PARA PANTALLAS GRANDES (Laptop/Desktop) === */
-      @media (min-width: 768px) {
-        body {
-          padding: 3rem; /* Más aire en pantallas grandes */
-        }
-      }
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_ES' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
 
-      /* Cuando es FullWidth, el body pierde sus márgenes para el 3D */
-      body.fullWidth {
-        max-width: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      header { 
-        margin-bottom: 3rem; 
-        border-bottom: 1px dashed var(--color-text-accent); /* Línea punteada más retro */
-        padding-bottom: 1.5rem;
-      }
-      
-      /* --- NEW: Constraint class for the Header in FullWidth mode --- */
-      /* This restores the "Container" look just for the header */
-      .header-constrained {
-        max-width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-        
-        /* Restoring the padding that BODY usually provides */
-        padding-top: 1rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-
-      @media (min-width: 768px) {
-        .header-constrained {
-          padding-top: 3rem;
-          padding-left: 3rem;
-          padding-right: 3rem;
-        }
-      }
-
-      h1 { 
-        font-weight: normal; 
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: -1px;
-      }
-      
-      nav { margin-top: 1rem; }
-
-      a { 
-        color: var(--color-text-accent); 
-        text-decoration: none; 
-        margin-right: 15px; 
-        text-transform: uppercase; /* Forzamos mayúsculas para estilo terminal */
-        font-size: 0.9rem;
-      }
-      a:hover { 
-        color: var(--color-highlight); 
-        text-decoration: underline;
-      }
-      a.active {
-        color: var(--color-text-light);
-        font-weight: bold;
-      }
-      
-      .lang-switch { 
-        float: right; 
-        font-size: 0.8em; 
-      }
-    </style>
+    <meta name="theme-color" content="#111111" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
   </head>
-  
-  <body class={fullWidth ? "fullWidth" : ""}>
-    {!hideHeader && (
-    <header class={fullWidth ? "header-constrained" : ""}>
-      <div class="lang-switch">
-        <a href={getLangSwitchPath('es')}>[ES]</a> <a href={getLangSwitchPath('en')}>[EN]</a>
+
+  <body class={fullWidth ? 'fullWidth' : ''}>
+    <a class="skip-link" href="#contenido">{t.skip}</a>
+
+    <header class:list={['site-header', { 'header-constrained': fullWidth }]}>
+      <div class="brand-row">
+        <a class="brand" href={localize('/', lang)}>
+          {site.name}<span class="ja" lang="ja">{SITE.ja}</span>{site.by}
+        </a>
+        <nav class="lang-switch" aria-label="Idioma / Language">
+          <a href={urls.es} hreflang="es" lang="es" aria-current={lang === 'es' ? 'true' : undefined}>[ES]</a>
+          <a href={urls.en} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>[EN]</a>
+        </nav>
       </div>
 
-      <h1>{title}</h1>
-      
-      <nav>
-        <a href={getPath('/')}>[LOBBY]</a>
-        <a href={getPath('/musica')}>[CURADURÍA]</a>
-        <a href={getPath('/videos')}>[VIDEOS]</a>
-        <a href={getPath('/cv')}>[BITÁCORA]</a>
+      {heading && <h1 class="page-title">{heading}</h1>}
+
+      <nav class="site-nav" aria-label={t.menu}>
+        {[false, true].map((mobile) => {
+          const list = (
+            <ul class="nav-groups">
+              {NAV_GROUPS.map((g) => (
+                <li class="nav-group">
+                  {g[lang] && <span class="nav-group-label" aria-hidden="true">{g[lang]}</span>}
+                  {g.items.map((key) => (
+                    <a href={localize(SECTIONS[key].path, lang)} aria-current={section === key ? 'page' : undefined}>
+                      [{SECTIONS[key][lang]}]
+                    </a>
+                  ))}
+                </li>
+              ))}
+            </ul>
+          );
+          return mobile ? (
+            <details class="nav-mobile">
+              <summary>[ ≡ {t.menu} ]</summary>
+              {list}
+            </details>
+          ) : (
+            <div class="nav-desktop">{list}</div>
+          );
+        })}
       </nav>
     </header>
-    )}
 
-    <main>
-        <slot />
+    <main id="contenido">
+      <slot />
     </main>
 
+    {!fullWidth && (
+      <footer class="site-footer">
+        <span>© {new Date().getFullYear()} Jose Shōta · {t.footer}</span>
+        <span>
+          <a href={localize('/sobre', lang)}>{SECTIONS.sobre[lang]}</a> ·
+          <a href={localize('/rss.xml', lang)}>RSS</a>
+        </span>
+      </footer>
+    )}
+
+    <GlobalPlayer client:only="react" transition:persist="cueva-player" lang={lang} collections={playerCollections} />
   </body>
 </html>
+
+<script>
+  // Cierra el menú móvil al navegar
+  document.addEventListener('astro:after-swap', () => {
+    document.querySelectorAll('details.nav-mobile[open]').forEach((d) => d.removeAttribute('open'));
+  });
+</script>

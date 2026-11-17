@@ -2,33 +2,43 @@
 import BaseLayout from '../layouts/Layout.astro';
 import VideoHall from '../components/VideoHall.astro';
 import VideoDeck from '../components/VideoDeck.jsx';
-import videos from '../data/videos.json';
+import { getCollection } from 'astro:content';
+import { youtubeId } from '../lib/youtube';
+import { SECTIONS, type Lang } from '../lib/i18n';
 
-const { lang = 'es' } = Astro.props;
+interface Props { lang: Lang }
+const { lang } = Astro.props;
 const copy = {
   es: {
-    title: "Nuestra Cueva Virtual / El museo audiovisual de Jose Shōta",
     intro: ">> ACCEDIENDO AL ARCHIVO...",
     scroll: "Desliza hacia abajo para entrar a la sala virtual.",
     deck: ">> MAZO VIRTUAL",
     swipe: "Desliza las tarjetas para recorrer el archivo.",
+    description: "El museo audiovisual de Jose Shōta: una sala virtual de videos, nostalgia y vaporwave.",
   },
   en: {
-    title: "Our Virtual Cave / Jose Shōta's audiovisual museum",
     intro: ">> ACCESSING ARCHIVE...",
     scroll: "Scroll down to enter the Virtual Hall.",
     deck: ">> VIRTUAL DECK",
     swipe: "Swipe cards to browse the archive.",
+    description: "Jose Shōta's audiovisual museum: a virtual hall of videos, nostalgia and vaporwave.",
   },
 }[lang];
-const pageTitle = copy.title;
 
-// We keep your height calculation for desktop, 
-// but for mobile we don't need scroll height because the deck is fixed position.
+const videos = (await getCollection('museo'))
+  .sort((a, b) => a.data.orden - b.data.orden)
+  .map((v, i) => ({
+    id: youtubeId(v.data.youtube) || v.data.youtube,
+    n: i + 1,
+    title: v.data.titulo,
+    desc: (lang === 'en' && v.data.descripcionEn) || v.data.descripcion,
+  }));
+
+// Altura de scroll de la sala 3D en escritorio
 const totalHeight = Math.max(2000, videos.length * 900) + "px";
 ---
 
-<BaseLayout title={pageTitle} fullWidth={true}>
+<BaseLayout title={SECTIONS.videos[lang]} lang={lang} section="videos" description={copy.description} fullWidth={true}>
     
     <div class="desktop-view">
         <div class="intro-overlay">
@@ -37,7 +47,7 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
             <div class="arrow">↓</div>
         </div>
 
-        <VideoHall />
+        <VideoHall videos={videos} lang={lang} />
 
         <div style={`height: ${totalHeight};`}></div>
     </div>
@@ -48,7 +58,7 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
             <p>{copy.swipe}</p>
         </div>
         
-        <VideoDeck client:load />
+        <VideoDeck client:load videos={videos} lang={lang} />
     </div>
 
 </BaseLayout>
@@ -64,7 +74,7 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
     /* We make the container a flex column so items sit naturally */
     .mobile-view {
         display: block; /* Triggered by media queries */
-        height: 100vh;
+        height: 100dvh;
         width: 100%;
         overflow: hidden;
         display: flex;            /* <--- CHANGE: Flexbox */
@@ -72,6 +82,10 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
         justify-content: center;  /* <--- CHANGE: Center content vertically */
         align-items: center;      /* <--- CHANGE: Center content horizontally */
         padding-bottom: 2rem;     /* Add some bottom breathing room */
+    }
+    /* En escritorio sin preferencias especiales, el mazo móvil no se muestra */
+    @media (pointer: fine) and (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+        .mobile-view { display: none !important; }
     }
 
     /* RULE 1: STRICTLY TOUCH DEVICES 
@@ -83,9 +97,9 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
         .desktop-view { display: none; }
         .mobile-view  { 
             display: block; 
-            height: 100vh;
+            height: auto;
             overflow: hidden;
-            padding-top: 40px;
+            padding-top: 0;
         }
     }
 
@@ -95,13 +109,13 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
        This ensures that if a computer user resizes their window somewhat small, 
        they generally keep the 3D Hall until it becomes absurdly narrow.
     */
-    @media (max-width: 768px) {
+    @media (max-width: 768px), (prefers-reduced-motion: reduce) {
         .desktop-view { display: none; }
         .mobile-view  { 
             display: block; 
-            height: 100vh;
+            height: auto;
             overflow: hidden;
-            padding-top: 40px;
+            padding-top: 0;
         }
     }
 
@@ -133,7 +147,7 @@ const totalHeight = Math.max(2000, videos.length * 900) + "px";
     /* Adjust header to not have huge margins, let Flexbox handle the gap */
     .mobile-header {
         text-align: center;
-        margin-top: 2rem;        /* Small top margin */
+        margin-top: 0;
         margin-bottom: 1rem;     /* Small bottom gap before deck */
         flex-shrink: 0;          /* Prevent header from squishing */
         z-index: 20;

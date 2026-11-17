@@ -1,0 +1,147 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Moons from '../components/Moons.astro';
+import { getCollection } from 'astro:content';
+import { published, bitacoraFor, settings } from '../lib/content';
+import { SECTIONS, localize, ui, formatDate, type Lang, type SectionKey } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const s = await settings();
+const welcome = (lang === 'en' ? s.bienvenidaEn : s.bienvenida) || '';
+const [greeting, ...welcomeLines] = welcome.split('\n').filter(Boolean);
+
+const posts = await bitacoraFor(lang);
+const films = (await published('cine')).sort((a, b) => b.data.vista.getTime() - a.data.vista.getTime());
+const books = await published('libros');
+const studies = await published('estudio');
+const recs = await published('recomendaciones');
+const [museo, curaduria] = await Promise.all([getCollection('museo'), getCollection('curaduria')]);
+
+const reading = books.find((b) => b.data.estado === 'leyendo');
+const studying = studies.filter((x) => x.data.estado === 'en-curso').slice(0, 2);
+const lastFilm = films[0];
+const lastPost = posts[0];
+
+const lastUpdate = new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+const rooms: { key: SectionKey; count: number; unit: { es: string; en: string } }[] = [
+  { key: 'bitacora', count: posts.length, unit: { es: 'escritos', en: 'writings' } },
+  { key: 'musica', count: curaduria.length, unit: { es: 'colecciones', en: 'collections' } },
+  { key: 'videos', count: museo.length, unit: { es: 'piezas', en: 'pieces' } },
+  { key: 'cine', count: films.length, unit: { es: 'películas', en: 'films' } },
+  { key: 'libros', count: books.length, unit: { es: 'libros', en: 'books' } },
+  { key: 'estudio', count: studies.length, unit: { es: 'temas', en: 'topics' } },
+  { key: 'recomendaciones', count: recs.length, unit: { es: 'hallazgos', en: 'finds' } },
+  { key: 'sobre', count: 0, unit: { es: '', en: '' } },
+];
+
+const greetings = ['Hola, cibernauta', 'Hello, netizen', 'こんにちは、ネット市民'];
+if (greeting) greetings[lang === 'en' ? 1 : 0] = greeting.replace(/[.!]$/, '');
+const ordered = lang === 'en' ? [greetings[1], greetings[0], greetings[2]] : greetings;
+---
+
+<Layout title={lang === 'es' ? 'Lobby' : 'Lobby'} heading={false} lang={lang} section="lobby">
+  <section class="hero">
+    <h1 class="greet"><span id="greet-text" data-greetings={JSON.stringify(ordered)}>{ordered[0]}</span><span class="cursor-blink" aria-hidden="true"></span></h1>
+    {welcomeLines.map((line) => <p>{line}</p>)}
+  </section>
+
+  <div class="lobby-grid">
+    <section class="status" aria-label={t.status}>
+      <pre class="status-pre">
+<span class="k">{t.status.padEnd(22, '.')}:</span> <span class="ok">{t.online}</span>
+<span class="k">{t.lastUpdate.padEnd(22, '.')}:</span> <span class="hl">{lastUpdate}</span>
+<span class="k">{t.location.padEnd(22, '.')}:</span> WORLD_WIDE_WEB
+<span class="k">{t.lastEntry.padEnd(22, '.')}:</span> {lastPost ? <a href={localize(`/bitacora/${lastPost.id}`, lang)}>{lastPost.data.titulo}</a> : t.nothing}
+<span class="k">{t.nowReading.padEnd(22, '.')}:</span> {reading ? <a href={localize(`/libros/${reading.id}`, lang)}>{reading.data.titulo}{reading.data.progreso ? ` [${reading.data.progreso}%]` : ''}</a> : t.nothing}
+<span class="k">{t.lastFilm.padEnd(22, '.')}:</span> {lastFilm ? <a href={localize(`/cine/${lastFilm.id}`, lang)}>{lastFilm.data.titulo}</a> : t.nothing}
+<span class="k">{t.studying.padEnd(22, '.')}:</span> {studying.length ? studying.map((x, i) => <>{i > 0 && ', '}<a href={localize(`/estudio/${x.id}`, lang)}>{x.data.tema}</a></>) : t.nothing}
+<span class="k">{t.nowPlaying.padEnd(22, '.')}:</span> <span id="now-playing" class="hl">{t.nothing}</span>
+      </pre>
+      {lastFilm && <div class="status-moon"><Moons value={lastFilm.data.calificacion} lang={lang} size={14} /></div>}
+    </section>
+
+    <nav class="rooms" aria-label={lang === 'es' ? 'Salas de la cueva' : 'Rooms of the cave'}>
+      <p class="rooms-title">{lang === 'es' ? '// MAPA DE LA CUEVA' : '// MAP OF THE CAVE'}</p>
+      <ul>
+        {rooms.map((r) => (
+          <li>
+            <a href={localize(SECTIONS[r.key].path, lang)}>
+              <span class="room-name">{SECTIONS[r.key][lang]}</span>
+              <span class="room-dots" aria-hidden="true"></span>
+              <span class="room-count">{r.unit[lang] ? `${r.count} ${r.unit[lang]}` : '→'}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</Layout>
+
+<script>
+  import { player } from '../lib/player.js';
+
+  function init() {
+    // Saludo que se escribe solo, alternando idiomas
+    const el = document.getElementById('greet-text');
+    if (el && !el.dataset.running) {
+      el.dataset.running = '1';
+      const words: string[] = JSON.parse(el.dataset.greetings || '[]');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce && words.length > 1) {
+        let w = 0, i = words[0].length, deleting = true;
+        const tick = () => {
+          if (!document.body.contains(el)) return;
+          const word = words[w];
+          i += deleting ? -1 : 1;
+          el.textContent = word.slice(0, i);
+          let delay = deleting ? 35 : 80;
+          if (!deleting && i === word.length) { deleting = true; delay = 3200; }
+          else if (deleting && i === 0) { deleting = false; w = (w + 1) % words.length; delay = 400; }
+          setTimeout(tick, delay);
+        };
+        setTimeout(tick, 3200);
+      }
+    }
+
+    // "SONANDO": lo que el visitante escucha ahora mismo
+    const np = document.getElementById('now-playing');
+    if (np) {
+      const render = () => {
+        const tr = player.currentTrack();
+        const st = player.getState();
+        np.textContent = tr ? `${st.isPlaying ? '▶' : '❚❚'} ${tr.title} — ${tr.artist}` : '—';
+      };
+      render();
+      const unsub = player.subscribe(render);
+      document.addEventListener('astro:before-swap', () => unsub(), { once: true });
+    }
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .hero { margin-bottom: 3rem; }
+  .greet { font-weight: normal; font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 0 0 1rem; color: var(--color-text-light); min-height: 1.4em; }
+  .hero p { margin: 0.2rem 0; max-width: 60ch; }
+  .lobby-grid { display: grid; gap: 2rem; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 960px) { .lobby-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); } }
+  .status { border: 1px solid #333; background: #000; padding: 1rem 1.1rem; font-size: 0.8rem; overflow-x: auto; }
+  .status-pre { margin: 0; font-family: var(--font-mono); white-space: pre-wrap; line-height: 1.9; color: var(--color-text-light); }
+  .status-pre .k { color: var(--color-text-accent); }
+  .status-pre .ok { color: #3fa7d6; }
+  .status-pre .hl { color: var(--color-highlight); }
+  .status-pre a { color: var(--color-text-light); text-decoration: underline dotted; text-underline-offset: 3px; }
+  .status-pre a:hover { color: var(--color-highlight); }
+  .status-moon { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed #222; }
+  .rooms-title { color: var(--color-text-accent); font-size: 0.75rem; letter-spacing: 0.1em; margin: 0 0 0.8rem; }
+  .rooms ul { list-style: none; margin: 0; padding: 0; }
+  .rooms a { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.45rem 0; text-decoration: none; color: var(--color-text-light); }
+  .room-name { text-transform: uppercase; font-size: 0.9rem; }
+  .room-dots { flex: 1; border-bottom: 1px dotted #3a3a3a; transform: translateY(-4px); }
+  .room-count { color: var(--color-text-accent); font-size: 0.75rem; }
+  .rooms a:hover .room-name, .rooms a:hover .room-count { color: var(--color-highlight); }
+  .rooms a:hover .room-dots { border-color: var(--color-highlight); }
+</style>

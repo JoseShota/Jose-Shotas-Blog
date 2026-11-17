@@ -1,15 +1,22 @@
 {
-  "name": "majestic-mercury",
+  "name": "nuestra-cueva-virtual",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "enrich": "node scripts/enrich-music.mjs"
   },
   "dependencies": {
+    "@astrojs/markdoc": "^0.15.11",
     "@astrojs/react": "^4.4.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.5",
+    "@astrojs/vercel": "^9.0.5",
+    "@keystatic/astro": "^6.0.0",
+    "@keystatic/core": "^0.6.10",
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",

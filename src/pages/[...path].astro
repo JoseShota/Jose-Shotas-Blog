@@ -1,0 +1,60 @@
+---
+// =====================================================================
+//  Tabla de rutas de la cueva: genera cada página en español (/...) y en
+//  inglés (/en/...) a partir de las mismas vistas.
+// =====================================================================
+import type { GetStaticPaths } from 'astro';
+import { LANGS, type Lang } from '../lib/i18n';
+import { published } from '../lib/content';
+import LobbyView from '../views/LobbyView.astro';
+import BitacoraView from '../views/BitacoraView.astro';
+import PostView from '../views/PostView.astro';
+import MusicaView from '../views/MusicaView.astro';
+import VideosView from '../views/VideosView.astro';
+import CineView from '../views/CineView.astro';
+import LibrosView from '../views/LibrosView.astro';
+import EstudioView from '../views/EstudioView.astro';
+import RecsView from '../views/RecsView.astro';
+import SobreView from '../views/SobreView.astro';
+import RecordView from '../views/RecordView.astro';
+
+export const getStaticPaths = (async () => {
+  const [posts, films, books, studies] = await Promise.all([
+    published('bitacora'), published('cine'), published('libros'), published('estudio'),
+  ]);
+  const routes = [];
+  for (const lang of LANGS) {
+    const at = (p: string) => ({ path: [lang === 'en' ? 'en' : '', p].filter(Boolean).join('/') || undefined });
+    const add = (p: string, view: string, extra: Record<string, unknown> = {}) =>
+      routes.push({ params: at(p), props: { view, lang, ...extra } });
+
+    add('', 'lobby');
+    add('bitacora', 'bitacora');
+    add('musica', 'musica');
+    add('videos', 'videos');
+    add('cine', 'cine');
+    add('libros', 'libros');
+    add('estudio', 'estudio');
+    add('recomendaciones', 'recomendaciones');
+    add('sobre', 'sobre');
+    for (const post of posts) add(`bitacora/${post.id}`, 'post', { post });
+    for (const entry of films) add(`cine/${entry.id}`, 'record', { entry });
+    for (const entry of books) add(`libros/${entry.id}`, 'record', { entry });
+    for (const entry of studies) add(`estudio/${entry.id}`, 'record', { entry });
+  }
+  return routes;
+}) satisfies GetStaticPaths;
+
+const { view, lang, post, entry } = Astro.props as { view: string; lang: Lang; post?: any; entry?: any };
+---
+{view === 'lobby' && <LobbyView lang={lang} />}
+{view === 'bitacora' && <BitacoraView lang={lang} />}
+{view === 'post' && <PostView lang={lang} post={post} />}
+{view === 'musica' && <MusicaView lang={lang} />}
+{view === 'videos' && <VideosView lang={lang} />}
+{view === 'cine' && <CineView lang={lang} />}
+{view === 'libros' && <LibrosView lang={lang} />}
+{view === 'estudio' && <EstudioView lang={lang} />}
+{view === 'recomendaciones' && <RecsView lang={lang} />}
+{view === 'sobre' && <SobreView lang={lang} />}
+{view === 'record' && <RecordView lang={lang} entry={entry} />}

@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Moons from '../components/Moons.astro';
+import { Image } from 'astro:assets';
+import { published } from '../lib/content';
+import { SECTIONS, localize, ui, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const books = await published('libros');
+const ORDER = ['leyendo', 'terminado', 'por-leer', 'abandonado'] as const;
+const shelves = ORDER.map((estado) => ({
+  estado,
+  books: books
+    .filter((b) => b.data.estado === estado)
+    .sort((a, b) => (b.data.fin?.getTime() ?? b.data.inicio?.getTime() ?? 0) - (a.data.fin?.getTime() ?? a.data.inicio?.getTime() ?? 0)),
+})).filter((s) => s.books.length);
+---
+<Layout title={SECTIONS.libros[lang]} lang={lang} section="libros" description={t.librosIntro}>
+  <h2 class="section-kicker">&gt; {lang === 'es' ? 'BIBLIOTECA / ESTANTES' : 'LIBRARY / SHELVES'}</h2>
+  <p class="section-intro">{t.librosIntro}</p>
+  <div class="section-body">
+    {shelves.length === 0 ? <p class="empty-room">{t.empty}</p> : shelves.map((shelf) => (
+      <section class="shelf">
+        <h3 class="shelf-title">{t.bookStatus[shelf.estado]} <span>({shelf.books.length})</span></h3>
+        <ul class="books">
+          {shelf.books.map((b) => (
+            <li>
+              <a href={localize(`/libros/${b.id}`, lang)} class="book">
+                <div class="cover">
+                  {b.data.portada
+                    ? <Image src={b.data.portada} alt="" width={200} height={300} />
+                    : <span class="spine" aria-hidden="true">{b.data.titulo}</span>}
+                </div>
+                <div class="book-info">
+                  <h4>{b.data.titulo}</h4>
+                  <p class="book-author">{b.data.autor}{b.data.anio ? ` · ${b.data.anio}` : ''}</p>
+                  {b.data.estado === 'leyendo' && (
+                    <div class="progress">
+                      <div class="meter" aria-hidden="true"><span style={`width:${b.data.progreso ?? 0}%`}></span></div>
+                      <span>{b.data.progreso ?? 0}%</span>
+                    </div>
+                  )}
+                  {(b.data.estado === 'terminado' || b.data.estado === 'abandonado') && <Moons value={b.data.calificacion} lang={lang} size={13} />}
+                  {b.data.citas.length > 0 && <p class="book-quotes">❝ {b.data.citas.length} {t.quotes.toLowerCase()}</p>}
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Layout>
+<style>
+  .shelf { margin-bottom: 3rem; }
+  .shelf-title { font-weight: normal; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.1em; color: var(--color-highlight); border-bottom: 1px solid var(--color-line); padding-bottom: 0.4rem; margin: 0 0 1.2rem; }
+  .shelf-title span { color: var(--color-text-accent); }
+  .books { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .book { display: flex; gap: 1rem; text-decoration: none; color: inherit; }
+  .cover { width: 84px; aspect-ratio: 2 / 3; flex-shrink: 0; border: 1px solid var(--color-line); background: #0b0b0b; overflow: hidden; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; filter: sepia(0.25) grayscale(0.4); transition: filter .4s; }
+  .book:hover .cover img { filter: none; }
+  .book:hover .cover { border-color: var(--color-highlight); }
+  .spine { writing-mode: vertical-rl; font-size: 0.65rem; color: #555; padding: 0.5rem; display: block; height: 100%; overflow: hidden; text-transform: uppercase; }
+  .book-info { min-width: 0; }
+  .book h4 { font-weight: normal; margin: 0 0 0.2rem; font-size: 1rem; color: var(--color-text-light); }
+  .book:hover h4 { color: var(--color-highlight); }
+  .book-author { font-size: 0.75rem; color: var(--color-text-accent); margin: 0 0 0.6rem; }
+  .progress { display: flex; align-items: center; gap: 0.6rem; font-size: 0.7rem; color: var(--color-text-accent); }
+  .progress .meter { flex: 1; max-width: 140px; }
+  .book-quotes { font-size: 0.7rem; color: var(--color-text-accent); margin: 0.5rem 0 0; }
+</style>

@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MusicGallery from '../components/MusicGallery.jsx';
+import { getCollection } from 'astro:content';
+import { TRACKS } from '../lib/player.js';
+import { SECTIONS, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+function totalDuration(tracks: { duration?: string }[]) {
+  const secs = tracks.reduce((acc, t) => {
+    const [m, s] = (t.duration || '0:00').split(':').map(Number);
+    return acc + (m || 0) * 60 + (s || 0);
+  }, 0);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${Math.floor(secs / 3600)}h ${pad(Math.floor((secs % 3600) / 60))}m ${pad(secs % 60)}s`;
+}
+
+const collections = (await getCollection('curaduria'))
+  .sort((a, b) => a.data.orden - b.data.orden)
+  .map(({ data }) => {
+    const tracks = TRACKS[data.pistas] || [];
+    return {
+      id: data.pistas,
+      title: (lang === 'en' && data.tituloEn) || data.titulo,
+      description: (lang === 'en' && data.descripcionEn) || data.descripcion,
+      cover: data.portadaUrl,
+      notes: Object.fromEntries(data.notas.map((n) => [n.pista, n.nota])),
+      trackCount: tracks.length,
+      totalDuration: totalDuration(tracks),
+    };
+  });
+
+const copy = {
+  es: {
+    kicker: 'CURADURÍA / ARCHIVO_SONORO',
+    intro: 'Colecciones de canciones elegidas por Jose. Abre un expediente: cada pista tiene su historia, sus créditos y sus canales oficiales. La música te acompaña mientras recorres la cueva.',
+    description: 'Curaduría musical de Jose Shōta: colecciones comentadas con la historia de cada canción y enlaces a sus artistas.',
+  },
+  en: {
+    kicker: 'CURATION / SOUND_ARCHIVE',
+    intro: "Song collections chosen by Jose. Open a file: every track comes with its story, its credits and its official channels. The music stays with you as you wander the cave.",
+    description: "Jose Shōta's music curation: annotated collections with the story of each song and links to its artists.",
+  },
+}[lang];
+---
+<Layout title={SECTIONS.musica[lang]} lang={lang} section="musica" description={copy.description}>
+  <h2 class="section-kicker">&gt; {copy.kicker}</h2>
+  <p class="section-intro">{copy.intro}</p>
+  <div class="section-body">
+    <MusicGallery client:load collections={collections} lang={lang} />
+  </div>
+</Layout>

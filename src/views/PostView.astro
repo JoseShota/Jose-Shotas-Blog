@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import { translationOf } from '../lib/content';
+import { localize, ui, formatDate, readingMinutes, LANG_TAG, SECTIONS, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang; post: CollectionEntry<'bitacora'> }
+const { lang, post } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const { Content } = await render(post);
+const translation = await translationOf(post, other);
+const alternate = localize(`/bitacora/${(translation || post).id}`, other);
+const canonicalLang: Lang = post.data.idioma === 'en' ? 'en' : 'es';
+const MOOD_COLOR = { archivo: '#9aa0a6', brillo: '#23909e', sombra: '#c58f3d', glitch: '#b56bff' };
+---
+<Layout
+  title={post.data.titulo}
+  lang={lang}
+  section="bitacora"
+  heading={false}
+  description={post.data.resumen || undefined}
+  image={post.data.portada?.src}
+  alternate={alternate}
+  canonical={localize(`/bitacora/${post.id}`, canonicalLang)}
+>
+  <article class="entry" style={`--mood:${MOOD_COLOR[post.data.estado]}`}>
+    <a class="back-link" href={localize('/bitacora', lang)}>← {SECTIONS.bitacora[lang]}</a>
+    <header class="entry-head">
+      <h1 class="entry-title" lang={post.data.idioma === 'mix' ? undefined : post.data.idioma}>{post.data.titulo}</h1>
+      <div class="entry-meta">
+        <time datetime={post.data.fecha.toISOString()}>{formatDate(post.data.fecha, lang, { month: 'long' })}</time>
+        <span class="tag" style="border-color:var(--mood);color:var(--mood)">{t.moods[post.data.estado]}</span>
+        <span class="tag">{LANG_TAG[post.data.idioma][lang]}</span>
+        <span>{t.readingTime(readingMinutes(post.body))}</span>
+      </div>
+      {translation && translation.id !== post.id && (
+        <a class="translation" href={alternate} hreflang={other}>↔ {ui[other].translationAvailable}</a>
+      )}
+    </header>
+    {post.data.portada && <Image src={post.data.portada} alt="" class="entry-cover" widths={[640, 1100]} sizes="(max-width: 1100px) 100vw, 1100px" />}
+    <div class="prose" lang={post.data.idioma === 'mix' ? undefined : post.data.idioma}>
+      <Content />
+    </div>
+    <p class="end-mark">&gt;&gt; {lang === 'es' ? 'FIN DEL REGISTRO.' : 'END OF RECORD.'}</p>
+  </article>
+</Layout>
+<style>
+  .entry { max-width: 68ch; }
+  .entry-head { margin: 1.5rem 0 2rem; padding-bottom: 1.2rem; border-bottom: 1px dashed var(--color-line); }
+  .entry-title { font-weight: normal; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.2; margin: 0 0 0.8rem; }
+  .entry-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: center; font-size: 0.78rem; color: var(--color-text-accent); }
+  .translation { display: inline-block; margin-top: 0.9rem; font-size: 0.8rem; }
+  .entry-cover { width: 100%; height: auto; border: 1px solid var(--color-line); margin-bottom: 2rem; }
+  .end-mark { margin-top: 3rem; color: var(--mood); font-size: 0.8rem; }
+</style>

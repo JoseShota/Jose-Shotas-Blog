@@ -1,0 +1,36 @@
+---
+// Una canción de la curaduría incrustada en un escrito: se reproduce en el
+// reproductor global y sigue sonando aunque el lector cambie de página.
+import { TRACKS, mediaUrl } from '../../lib/player.js';
+const { volumen = 'vol1', pista = 1 } = Astro.props;
+const list = TRACKS[volumen] || [];
+const index = list.findIndex((t) => t.id === Number(pista));
+const track = list[index];
+---
+{track && (
+  <div class="md-song">
+    <img src={mediaUrl(track.cover)} alt="" width="64" height="64" loading="lazy" />
+    <div class="md-song-text">
+      <span class="md-song-title">{track.title}</span>
+      <span class="md-song-artist">{track.artist} · {track.album}</span>
+    </div>
+    <button type="button" class="md-song-play" data-cueva-play={volumen} data-index={index} aria-label={`▶ ${track.title} — ${track.artist}`}>
+      ▶
+    </button>
+  </div>
+)}
+<style>
+  .md-song {
+    display: flex; align-items: center; gap: 0.9rem; border: 1px solid var(--color-line); background: #050505;
+    padding: 0.6rem; font-family: var(--font-mono); margin: 1.5em 0;
+  }
+  .md-song img { width: 64px; height: 64px; object-fit: cover; border: 1px solid var(--color-line); }
+  .md-song-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .md-song-title { font-size: 0.95rem; color: var(--color-text-light); }
+  .md-song-artist { font-size: 0.72rem; color: var(--color-text-accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .md-song-play {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--color-highlight); background: transparent;
+    color: var(--color-highlight); cursor: pointer; font-size: 1rem; flex-shrink: 0;
+  }
+  .md-song-play:hover { background: var(--color-highlight); color: #000; }
+</style>

@@ -1,0 +1,40 @@
+---
+titulo: Manual de formatos (borrador de ejemplo)
+fecha: 2026-11-17
+idioma: es
+borrador: true
+estado: glitch
+resumen: Un recorrido por todos los formatos que acepta el editor. Este texto es un borrador y nunca se publica; úsalo como referencia.
+---
+Este es un **borrador de ejemplo**. Mientras la casilla *Borrador* esté marcada, no aparece en el sitio. Puedes copiar cualquier bloque de aquí a tus textos.
+
+## Texto
+
+Escribe como en cualquier procesador: **negritas**, *cursivas*, [enlaces](https://www.joseshota.net), listas y citas. Si pegas desde Word o Google Docs, el formato se conserva.
+
+> Una cita normal se ve así, con una línea de color a la izquierda.
+
+- Listas con viñetas
+- que respetan la estética de la cueva
+
+---
+
+## Formatos especiales
+
+{% Epigrafe autor="Alguien sabio" %}
+Un epígrafe abre un texto con una cita alineada a la derecha.
+{% /Epigrafe %}
+
+{% NotaAlMargen titulo="NOTA_AL_MARGEN" %}
+Para comentarios laterales, aclaraciones o digresiones.
+{% /NotaAlMargen %}
+
+{% Cancion volumen="vol2" pista=1 /%}
+
+{% Spoiler aviso="Contiene spoilers" %}
+Lo que escribas aquí queda oculto hasta que el lector haga clic.
+{% /Spoiler %}
+
+{% Terminal texto="jose@cueva:~$ echo 'hola, mundo'\nhola, mundo" /%}
+
+{% YouTube id="https://www.youtube.com/watch?v=Pbv7dua-vlM" pie="Un video incrustado (solo carga al hacer clic)" /%}

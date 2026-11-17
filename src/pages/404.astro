@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ui } from '../lib/i18n';
+const es = ui.es, en = ui.en;
+---
+<Layout title={`404 — ${es.notFoundTitle}`} lang="es" heading={false} noindex>
+  <section class="lost">
+    <pre aria-hidden="true">{`   ________
+  /  ____  \\
+ |  /    \\  |
+ |  | 404|  |   ~ ~ ~
+ |  \\____/  |
+  \\________/`}</pre>
+    <h1>{es.notFoundTitle} <span lang="en">/ {en.notFoundTitle}</span></h1>
+    <p>{es.notFoundBody}</p>
+    <p lang="en" class="en">{en.notFoundBody}</p>
+    <p class="links"><a href="/">[{es.goLobby}]</a> <a href="/en/" lang="en">[{en.goLobby}]</a></p>
+  </section>
+</Layout>
+<style>
+  .lost { text-align: center; padding: 3rem 0; }
+  pre { color: var(--color-highlight); display: inline-block; text-align: left; font-size: 0.85rem; }
+  h1 { font-weight: normal; font-size: 1.6rem; }
+  h1 span, .en { color: var(--color-text-accent); }
+  .links { display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; }
+</style>

@@ -1,0 +1,14 @@
+---
+const { archivo, titulo } = Astro.props;
+---
+{archivo && (
+  <figure class="md-voice">
+    <figcaption>◉ {titulo || 'NOTA_DE_VOZ'}</figcaption>
+    <audio controls preload="none" src={archivo}></audio>
+  </figure>
+)}
+<style>
+  .md-voice { border: 1px solid var(--color-line); padding: 0.7rem; margin: 1.6em 0; background: #050505; }
+  figcaption { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-highlight); margin-bottom: 0.5rem; text-transform: uppercase; }
+  audio { width: 100%; }
+</style>

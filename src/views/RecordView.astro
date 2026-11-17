@@ -1,0 +1,116 @@
+---
+// Página de detalle para películas, libros y temas de estudio.
+import Layout from '../layouts/Layout.astro';
+import Moons from '../components/Moons.astro';
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import { localize, ui, formatDate, SECTIONS, LANG_TAG, type Lang } from '../lib/i18n';
+
+type Entry = CollectionEntry<'cine'> | CollectionEntry<'libros'> | CollectionEntry<'estudio'>;
+interface Props { lang: Lang; entry: Entry }
+const { lang, entry } = Astro.props;
+const t = ui[lang];
+const kind = entry.collection;
+const { Content } = await render(entry);
+const d = entry.data as any;
+const title = kind === 'estudio' ? d.tema : d.titulo;
+const image = kind === 'cine' ? d.poster : kind === 'libros' ? d.portada : null;
+
+const facts: [string, string][] = [];
+if (kind === 'cine') {
+  if (d.tituloOriginal && d.tituloOriginal !== d.titulo) facts.push([lang === 'es' ? 'Título original' : 'Original title', d.tituloOriginal]);
+  if (d.direccion) facts.push([t.directedBy, d.direccion]);
+  if (d.anio) facts.push([lang === 'es' ? 'Año' : 'Year', String(d.anio)]);
+  if (d.pais) facts.push([lang === 'es' ? 'País' : 'Country', d.pais]);
+  facts.push([t.watched, formatDate(d.vista, lang, { month: 'long' })]);
+}
+if (kind === 'libros') {
+  if (d.autor) facts.push([lang === 'es' ? 'Autor/a' : 'Author', d.autor]);
+  if (d.anio) facts.push([lang === 'es' ? 'Año' : 'Year', String(d.anio)]);
+  facts.push([lang === 'es' ? 'Estado' : 'Status', t.bookStatus[d.estado as keyof typeof t.bookStatus]]);
+  if (d.inicio) facts.push([lang === 'es' ? 'Empecé' : 'Started', formatDate(d.inicio, lang)]);
+  if (d.fin) facts.push([lang === 'es' ? 'Terminé' : 'Finished', formatDate(d.fin, lang)]);
+}
+if (kind === 'estudio') {
+  if (d.area) facts.push([lang === 'es' ? 'Área' : 'Field', d.area]);
+  facts.push([lang === 'es' ? 'Estado' : 'Status', t.studyStatus[d.estado as keyof typeof t.studyStatus]]);
+  facts.push([lang === 'es' ? 'Desde' : 'Since', formatDate(d.inicio, lang, { month: 'long' })]);
+}
+const showMoons = kind === 'cine' || (kind === 'libros' && d.estado !== 'leyendo' && d.estado !== 'por-leer');
+const showProgress = kind === 'estudio' || (kind === 'libros' && d.estado === 'leyendo');
+const sectionKey = kind as 'cine' | 'libros' | 'estudio';
+---
+<Layout title={title} lang={lang} section={sectionKey} heading={false} image={image?.src}
+  description={kind === 'cine' ? `${title}${d.anio ? ` (${d.anio})` : ''} — ${SECTIONS.cine[lang]}` : undefined}>
+  <article class="record">
+    <a class="back-link" href={localize(SECTIONS[sectionKey].path, lang)}>← {SECTIONS[sectionKey][lang]}</a>
+    <div class:list={['record-head', { 'has-image': image }]}>
+      {image && <Image src={image} alt="" width={360} height={540} class="record-image" />}
+      <div>
+        <h1 class="record-title">{title}</h1>
+        {showMoons && <div class="record-moons"><Moons value={d.calificacion} lang={lang} size={22} /></div>}
+        {showProgress && (
+          <div class="record-progress">
+            <div class="meter" aria-hidden="true"><span style={`width:${d.progreso ?? 0}%`}></span></div>
+            <span>{d.progreso ?? 0}%</span>
+          </div>
+        )}
+        <dl class="facts">
+          {facts.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}
+          <dt>{lang === 'es' ? 'Idioma' : 'Language'}</dt><dd>{LANG_TAG[d.idioma][lang]}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="prose" lang={d.idioma === 'mix' ? undefined : d.idioma}>
+      <Content />
+    </div>
+
+    {kind === 'libros' && d.citas.length > 0 && (
+      <section class="quotes">
+        <h2>{t.quotes}</h2>
+        {d.citas.map((c: { cita: string; pagina?: string }) => (
+          <blockquote>
+            <p>{c.cita}</p>
+            {c.pagina && <cite>{t.page} {c.pagina}</cite>}
+          </blockquote>
+        ))}
+      </section>
+    )}
+
+    {kind === 'estudio' && d.recursos.length > 0 && (
+      <section class="resources">
+        <h2>{t.resources}</h2>
+        <ul>
+          {d.recursos.map((r: { titulo: string; url?: string | null; tipo: string }) => (
+            <li>
+              <span class="tag">{r.tipo}</span>
+              {r.url ? <a href={r.url} target="_blank" rel="noopener">{r.titulo} ↗</a> : <span>{r.titulo}</span>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</Layout>
+<style>
+  .record { max-width: 900px; }
+  .record-head { margin: 1.5rem 0 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px dashed var(--color-line); }
+  .record-head.has-image { display: grid; grid-template-columns: 180px 1fr; gap: 1.8rem; align-items: start; }
+  @media (max-width: 600px) { .record-head.has-image { grid-template-columns: 110px 1fr; gap: 1rem; } }
+  .record-image { width: 100%; height: auto; border: 1px solid var(--color-line); }
+  .record-title { font-weight: normal; font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.2; margin: 0 0 0.9rem; }
+  .record-moons { margin-bottom: 1rem; }
+  .record-progress { display: flex; align-items: center; gap: 0.7rem; max-width: 320px; font-size: 0.8rem; color: var(--color-text-accent); margin-bottom: 1rem; }
+  .record-progress .meter { flex: 1; }
+  .facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; font-size: 0.82rem; margin: 0; }
+  .facts dt { color: var(--color-text-accent); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; padding-top: 0.15rem; }
+  .facts dd { margin: 0; }
+  .quotes, .resources { margin-top: 3rem; max-width: 68ch; }
+  .quotes h2, .resources h2 { font-weight: normal; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-highlight); }
+  .quotes blockquote { margin: 1.2rem 0; padding-left: 1rem; border-left: 2px solid var(--color-highlight); font-family: var(--font-read); font-style: italic; }
+  .quotes p { margin: 0; white-space: pre-line; }
+  .quotes cite { display: block; font-family: var(--font-mono); font-style: normal; font-size: 0.72rem; color: var(--color-text-accent); margin-top: 0.3rem; }
+  .resources ul { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .resources li { display: flex; gap: 0.7rem; align-items: baseline; }
+</style>

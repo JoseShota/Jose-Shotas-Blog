@@ -1,45 +1,41 @@
 ---
-import videos from '../data/videos.json';
-
-// Configuration
-const Z_SPACING = 800; // Distance between videos (depth)
-const X_OFFSET = 350;  // How far left/right from center
+// Sala 3D del museo (escritorio). Las miniaturas se cargan al instante y el
+// reproductor de YouTube solo aparece al inspeccionar una pieza.
+interface Props { videos: { id: string; n: number; title: string; desc: string }[]; lang: 'es' | 'en' }
+const { videos, lang } = Astro.props;
+const Z_SPACING = 800; // profundidad entre videos
+const X_OFFSET = 350;  // separación izquierda/derecha
+const inspect = lang === 'es' ? '[ INSPECCIONAR ]' : '[ INSPECT DATA ]';
+const endLabel = lang === 'es' ? '[ FIN DEL ARCHIVO ]' : '[ END OF ARCHIVE ]';
 ---
 
 <div class="hall-container">
   <div class="hall-scene" id="hallScene">
-    
     <div class="floor-grid"></div>
 
     {videos.map((video, index) => {
-      // Calculate standard 3D position
       const isLeft = index % 2 === 0;
       const xPos = isLeft ? X_OFFSET : -X_OFFSET;
       const rotationY = isLeft ? -15 : 15;
-      const zPos = index * -Z_SPACING; 
-
+      const zPos = index * -Z_SPACING;
       return (
-        <div 
+        <div
           class="video-frame"
           id={`frame-${index}`}
+          data-z={zPos}
+          data-yt={video.id}
           style={`--base-transform: translate3d(${xPos}px, 0, ${zPos}px) rotateY(${rotationY}deg);`}
         >
-          <div class="click-overlay" onclick={`focusFrame(${index}, event)`}>
-            <span class="inspect-hint">[ INSPECT DATA ]</span>
-          </div>
+          <button type="button" class="click-overlay" data-focus={index} aria-label={`${inspect} ${video.title}`}>
+            <span class="inspect-hint">{inspect}</span>
+          </button>
 
           <div class="video-wrapper">
-             <iframe 
-                src={`https://www.youtube.com/embed/${video.id}`} 
-                title={video.title} 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-             ></iframe>
+            <img src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} alt="" loading={index < 2 ? 'eager' : 'lazy'} />
           </div>
-          
+
           <div class="video-meta">
-            <span class="index-marker">No. 0{index + 1}</span>
+            <span class="index-marker">No. {String(video.n).padStart(2, '0')}</span>
             <h3>{video.title}</h3>
             <p class="cueva-muted desc-text">{video.desc}</p>
           </div>
@@ -48,9 +44,8 @@ const X_OFFSET = 350;  // How far left/right from center
     })}
 
     <div class="end-marker" style={`transform: translate3d(0, 0, ${(videos.length * -Z_SPACING) - 500}px)`}>
-      [ END OF ARCHIVE ]
+      {endLabel}
     </div>
-
   </div>
 </div>
 
@@ -82,87 +77,86 @@ const X_OFFSET = 350;  // How far left/right from center
   }
 </style>
 
-<script is:inline>
-  // --- 1. SCROLL ENGINE ---
-  const scene = document.getElementById('hallScene');
-  const speedFactor = 2.5; 
+<script>
+  // Motor de la sala: scroll -> profundidad; clic -> inspeccionar.
+  // Se inicializa en cada visita y se limpia al salir (navegación sin recarga).
+  document.addEventListener('astro:page-load', () => {
+    const scene = document.getElementById('hallScene');
+    if (!scene) return;
+    const speedFactor = 2.5;
+    let current: number | null = null;
 
-  window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    const zMove = scrollY * speedFactor;
-    if (scene) {
-      scene.style.transform = `translateZ(${zMove}px)`;
-    }
-  });
+    const onScroll = () => { scene.style.transform = `translateZ(${window.scrollY * speedFactor}px)`; };
 
-  // --- 2. FOCUS ENGINE (Inspect Mode) ---
-  let currentFocus = null;
+    const frameOf = (i: number) => document.getElementById(`frame-${i}`) as HTMLElement | null;
 
-  window.focusFrame = (index, event) => {
-    // Stop the click from immediately bubbling to the window (which would close it)
-    if (event) event.stopPropagation();
+    const reset = (i: number) => {
+      const frame = frameOf(i);
+      if (!frame) return;
+      frame.classList.remove('is-focused');
+      frame.style.transform = '';
+      frame.style.zIndex = 'auto';
+      frame.querySelector('iframe')?.remove();
+      frame.querySelector<HTMLElement>('.video-wrapper img')?.removeAttribute('hidden');
+      const overlay = frame.querySelector<HTMLElement>('.click-overlay');
+      setTimeout(() => { if (overlay) { overlay.style.pointerEvents = 'auto'; overlay.style.opacity = '1'; } }, 100);
+    };
 
-    const frame = document.getElementById(`frame-${index}`);
-    const overlay = frame.querySelector('.click-overlay');
-    const zPos = parseInt(frame.style.getPropertyValue('--base-transform').match(/translate3d\(.*?,.*?,(.*?)px\)/)[1]);
+    const close = () => {
+      if (current === null) return;
+      const idx = current;
+      current = null;
+      reset(idx);
+      document.body.classList.remove('inspecting-mode');
+      frameOf(idx)?.querySelector<HTMLElement>('.click-overlay')?.focus({ preventScroll: true });
+    };
 
-    // If already focused, ignore
-    if (currentFocus === index) return;
+    const focus = (i: number) => {
+      if (current === i) return;
+      if (current !== null) reset(current);
+      const frame = frameOf(i);
+      if (!frame) return;
+      current = i;
+      frame.classList.add('is-focused');
+      document.body.classList.add('inspecting-mode');
+      const overlay = frame.querySelector<HTMLElement>('.click-overlay')!;
+      overlay.style.pointerEvents = 'none';
+      overlay.style.opacity = '0';
+      const z = Number(frame.dataset.z);
+      frame.style.transform = `translate3d(0px, 0px, ${z + 350}px) rotateY(0deg) scale(1.1)`;
+      frame.style.zIndex = '100';
+      // carga el reproductor real solo ahora
+      const wrapper = frame.querySelector('.video-wrapper')!;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${frame.dataset.yt}?autoplay=1`;
+      iframe.title = frame.querySelector('h3')?.textContent || 'YouTube';
+      iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      wrapper.querySelector('img')?.setAttribute('hidden', '');
+      wrapper.appendChild(iframe);
+      window.dispatchEvent(new CustomEvent('cueva:pause-music'));
+    };
 
-    // If another is focused, reset it first
-    if (currentFocus !== null) {
-      resetFrame(currentFocus);
-    }
+    const onClick = (e: MouseEvent) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-focus]');
+      if (btn) { e.stopPropagation(); focus(Number(btn.dataset.focus)); return; }
+      if (current !== null && !frameOf(current)?.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
 
-    // Set new focus
-    currentFocus = index;
-    frame.classList.add('is-focused');
-    document.body.classList.add('inspecting-mode'); // Hides the "Accessing Archive" text
-    
-    // Disable glass so we can click the YouTube video
-    overlay.style.pointerEvents = 'none'; 
-    overlay.style.opacity = '0';
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('click', onClick);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('cueva:music-play', close);
+    onScroll();
 
-    // Move to Center (X=0, Y=0) and slightly forward (zPos + 350) to float in front of camera
-    // We remove rotationY to make it face the user directly
-    frame.style.transform = `translate3d(0px, 0px, ${zPos + 350}px) rotateY(0deg) scale(1.1)`;
-    frame.style.zIndex = '100'; 
-  };
-
-  window.resetFrame = (index) => {
-    const frame = document.getElementById(`frame-${index}`);
-    if (!frame) return;
-
-    const overlay = frame.querySelector('.click-overlay');
-    
-    frame.classList.remove('is-focused');
-    
-    // Return to wall
-    frame.style.transform = frame.style.getPropertyValue('--base-transform');
-    frame.style.zIndex = 'auto';
-
-    // Re-enable glass for next time
-    // Small timeout ensures the animation starts before we block clicks again
-    setTimeout(() => {
-        overlay.style.pointerEvents = 'auto';
-        overlay.style.opacity = '1';
-    }, 100);
-  };
-
-  // --- 3. CLICK OUTSIDE TO CLOSE ---
-  window.addEventListener('click', (e) => {
-    // Only proceed if we are currently inspecting something
-    if (currentFocus !== null) {
-        const focusedFrame = document.getElementById(`frame-${currentFocus}`);
-        
-        // If the click target is NOT inside the focused frame, close it.
-        // (Note: The YouTube iframe swallows clicks, so this only fires for background clicks)
-        if (focusedFrame && !focusedFrame.contains(e.target)) {
-            resetFrame(currentFocus);
-            currentFocus = null;
-            document.body.classList.remove('inspecting-mode'); // Bring back the text
-        }
-    }
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('click', onClick);
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('cueva:music-play', close);
+      document.body.classList.remove('inspecting-mode');
+    }, { once: true });
   });
 </script>
 
@@ -231,6 +225,10 @@ const X_OFFSET = 350;  // How far left/right from center
 
   /* --- GLASS OVERLAY (UPDATED) --- */
   .click-overlay {
+    border: 0;
+    padding: 0;
+    font: inherit;
+    width: 100%;
     position: absolute;
     inset: 0; /* Covers EVERYTHING inside the border */
     z-index: 50;
@@ -259,7 +257,8 @@ const X_OFFSET = 350;  // How far left/right from center
     box-shadow: 0 0 10px #000;
   }
 
-  .click-overlay:hover .inspect-hint {
+  .click-overlay:hover .inspect-hint,
+  .click-overlay:focus-visible .inspect-hint {
     opacity: 1;
     transform: scale(1);
   }
@@ -278,6 +277,10 @@ const X_OFFSET = 350;  // How far left/right from center
   /* When focused, the wrapper allows pointer events (handled by removing overlay) */
   .video-frame.is-focused .video-wrapper {
      pointer-events: auto;
+  }
+
+  .video-wrapper img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.85;
   }
 
   .video-wrapper iframe {

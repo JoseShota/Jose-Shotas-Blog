@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import { published } from '../lib/content';
+import { SECTIONS, ui, formatDate, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const recs = (await published('recomendaciones')).sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime());
+const rendered = await Promise.all(recs.map(async (r) => ({ r, Content: (await render(r)).Content })));
+const kinds = [...new Set(recs.map((r) => r.data.tipo))];
+---
+<Layout title={SECTIONS.recomendaciones[lang]} lang={lang} section="recomendaciones" description={t.recsIntro}>
+  <h2 class="section-kicker">&gt; {lang === 'es' ? 'RECOMENDACIONES / DE_MÍ_PARA_TI' : 'RECS / FROM_ME_TO_YOU'}</h2>
+  <p class="section-intro">{t.recsIntro}</p>
+  <div class="section-body">
+    {recs.length === 0 ? <p class="empty-room">{t.empty}</p> : (
+      <>
+        {kinds.length > 1 && (
+          <div class="chip-row" role="group" data-filter-group>
+            <button class="chip" type="button" data-filter="all" aria-pressed="true">{t.all}</button>
+            {kinds.map((k) => <button class="chip" type="button" data-filter={k} aria-pressed="false">{t.recKinds[k]}</button>)}
+          </div>
+        )}
+        <ul class="recs">
+          {rendered.map(({ r, Content }) => (
+            <li class="rec" id={r.id} data-kind={r.data.tipo}>
+              {r.data.imagen && <Image src={r.data.imagen} alt="" width={480} height={300} class="rec-img" />}
+              <div class="rec-body">
+                <div class="rec-meta">
+                  <span class="tag tag-accent">{t.recKinds[r.data.tipo]}</span>
+                  <time datetime={r.data.fecha.toISOString()}>{formatDate(r.data.fecha, lang)}</time>
+                </div>
+                <h3>{r.data.titulo}</h3>
+                {r.data.creador && <p class="rec-creator">{r.data.creador}</p>}
+                <div class="prose rec-why"><Content /></div>
+                {r.data.enlace && <a class="rec-link" href={r.data.enlace} target="_blank" rel="noopener">{t.visit} ↗</a>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+</Layout>
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const group = document.querySelector('[data-filter-group]');
+    if (!group) return;
+    group.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('button[data-filter]') as HTMLButtonElement | null;
+      if (!btn) return;
+      const f = btn.dataset.filter;
+      group.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      document.querySelectorAll<HTMLElement>('.rec').forEach((li) => { li.hidden = f !== 'all' && li.dataset.kind !== f; });
+    });
+  });
+</script>
+<style>
+  .recs { list-style: none; margin: 0; padding: 0; columns: 320px; column-gap: 1.4rem; }
+  .rec { break-inside: avoid; border: 1px solid var(--color-line); background: rgba(0,0,0,0.5); margin-bottom: 1.4rem; }
+  .rec:target { border-color: var(--color-highlight); }
+  .rec-img { width: 100%; height: auto; display: block; border-bottom: 1px solid var(--color-line); filter: grayscale(0.6); }
+  .rec:hover .rec-img { filter: none; }
+  .rec-body { padding: 1rem; }
+  .rec-meta { display: flex; gap: 0.7rem; align-items: center; font-size: 0.72rem; color: var(--color-text-accent); }
+  .rec h3 { font-weight: normal; font-size: 1.1rem; margin: 0.7rem 0 0.15rem; }
+  .rec-creator { font-size: 0.78rem; color: var(--color-text-accent); margin: 0 0 0.6rem; }
+  .rec-why { font-size: 1rem; }
+  .rec-link { display: inline-block; margin-top: 0.8rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+</style>

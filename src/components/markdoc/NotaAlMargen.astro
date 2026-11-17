@@ -1,0 +1,12 @@
+---
+const { titulo } = Astro.props;
+---
+<aside class="md-aside">
+  <span class="md-aside-label">{titulo || 'NOTA_AL_MARGEN'}</span>
+  <div><slot /></div>
+</aside>
+<style>
+  .md-aside { border: 1px dashed var(--color-highlight); padding: 0.9rem 1rem; background: rgba(35, 144, 158, 0.05); font-size: 0.95em; margin: 1.6em 0; }
+  .md-aside-label { display: block; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--color-highlight); text-transform: uppercase; margin-bottom: 0.4rem; }
+  .md-aside :global(p) { margin: 0.4em 0; }
+</style>

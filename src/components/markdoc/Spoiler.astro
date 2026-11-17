@@ -1,0 +1,12 @@
+---
+const { aviso = 'Contiene spoilers' } = Astro.props;
+---
+<details class="md-spoiler">
+  <summary>⚠ {aviso}</summary>
+  <div><slot /></div>
+</details>
+<style>
+  .md-spoiler { border: 1px solid #5a2a2a; padding: 0.6rem 0.9rem; margin: 1.6em 0; }
+  summary { cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-danger); text-transform: uppercase; letter-spacing: 0.06em; }
+  .md-spoiler[open] summary { margin-bottom: 0.6rem; }
+</style>

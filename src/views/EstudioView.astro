@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { published } from '../lib/content';
+import { SECTIONS, localize, ui, formatDate, type Lang } from '../lib/i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const RANK = { 'en-curso': 0, explorando: 1, pausa: 2, dominado: 3 };
+const topics = (await published('estudio')).sort(
+  (a, b) => RANK[a.data.estado] - RANK[b.data.estado] || b.data.inicio.getTime() - a.data.inicio.getTime()
+);
+---
+<Layout title={SECTIONS.estudio[lang]} lang={lang} section="estudio" description={t.estudioIntro}>
+  <h2 class="section-kicker">&gt; {lang === 'es' ? 'ESTUDIO / CUADERNO_ABIERTO' : 'STUDY / OPEN_NOTEBOOK'}</h2>
+  <p class="section-intro">{t.estudioIntro}</p>
+  <div class="section-body">
+    {topics.length === 0 ? <p class="empty-room">{t.empty}</p> : (
+      <ul class="topics">
+        {topics.map((x) => (
+          <li>
+            <a class:list={['topic', `st-${x.data.estado}`]} href={localize(`/estudio/${x.id}`, lang)}>
+              <div class="topic-head">
+                {x.data.area && <span class="tag">{x.data.area}</span>}
+                <span class="tag tag-accent">{t.studyStatus[x.data.estado]}</span>
+              </div>
+              <h3>{x.data.tema}</h3>
+              <div class="meter" aria-hidden="true"><span style={`width:${x.data.progreso ?? 0}%`}></span></div>
+              <p class="topic-foot">
+                <span>{x.data.progreso ?? 0}%</span>
+                <span>{x.data.recursos.length} {t.resources.toLowerCase()} · {t.since} {formatDate(x.data.inicio, lang, { day: undefined })}</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Layout>
+<style>
+  .topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .topic { display: block; border: 1px solid var(--color-line); background: rgba(0,0,0,0.5); padding: 1rem; text-decoration: none; color: inherit; height: 100%; box-sizing: border-box; }
+  .topic:hover { border-color: var(--color-highlight); }
+  .topic-head { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .topic h3 { font-weight: normal; font-size: 1.1rem; margin: 0.7rem 0 0.9rem; color: var(--color-text-light); }
+  .topic:hover h3 { color: var(--color-highlight); }
+  .topic-foot { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.7rem; color: var(--color-text-accent); margin: 0.5rem 0 0; }
+  .st-pausa, .st-dominado { opacity: 0.75; }
+</style>

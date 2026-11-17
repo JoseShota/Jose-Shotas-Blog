@@ -1,475 +1,424 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Clock, Music, ChevronLeft } from 'lucide-react';
-import playlistData from '../data/playlist.json';
-import playlistVol2 from '../data/playlist-vol2.json';
+// =====================================================================
+//  CURADURÍA — galería de colecciones, lista de pistas y expedientes.
+//  Controla el reproductor global (src/lib/player.js), así que la música
+//  sigue sonando aunque el visitante se vaya a otra sala de la cueva.
+// =====================================================================
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import '../styles/music.css';
+import { player, TRACKS, mediaUrl, formatTime } from '../lib/player.js';
+import { usePlayer } from './player/usePlayer.js';
+import {
+  Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1, Volume2, VolumeX,
+  Share2, Search, Info, ChevronLeft, ExternalLink, X, Loader2,
+} from './player/Icons.jsx';
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+const T = {
+  es: {
+    tracks: 'pistas', back: 'Volver a colecciones', note: 'Nota editorial', playAll: 'Reproducir', shuffleAll: 'Aleatorio',
+    share: 'Compartir', copied: 'Enlace copiado', search: 'Buscar título, artista o álbum…', noResults: 'Nada coincide con la búsqueda.',
+    title: 'Título', artist: 'Artista', album: 'Álbum', time: 'Dur.', dossier: 'Expediente', file: 'EXPEDIENTE',
+    josesNote: 'Nota de Jose', year: 'Año', duration: 'Duración', from: 'Desde', genres: 'Géneros',
+    aboutArtist: 'Sobre el artista', aboutAlbum: 'Sobre el álbum', officialLinks: 'Canales oficiales',
+    support: 'Si esta canción te mueve, búscala en sus canales oficiales: compra el disco, ve al concierto, sigue al artista.',
+    noData: 'Aún no hay datos públicos sobre esta pista.', loading: 'Consultando archivos…', source: 'Fuentes',
+    play: 'Reproducir', pause: 'Pausa', prev: 'Anterior', next: 'Siguiente', volume: 'Volumen', seek: 'Posición',
+    shuffle: 'Aleatorio', repeat: { off: 'Repetir: no', all: 'Repetir: colección', one: 'Repetir: canción' },
+    mute: 'Silenciar', select: 'Elige una canción', open: 'Abrir colección', shortcuts: 'Atajos: K reproducir/pausa · J/L ±10 s · N/P siguiente/anterior · M silencio',
+    hasNote: 'Tiene nota de Jose', close: 'Cerrar', inOtherLang: 'en inglés',
+    links: { official: 'Sitio oficial', bandcamp: 'Bandcamp', instagram: 'Instagram', x: 'X / Twitter', facebook: 'Facebook', youtube: 'YouTube', soundcloud: 'SoundCloud', tiktok: 'TikTok', wikipedia: 'Wikipedia', musicbrainz: 'MusicBrainz' },
+    types: { Person: 'Solista', Group: 'Grupo', Orchestra: 'Orquesta', Choir: 'Coro', Character: 'Personaje', Other: 'Otro' },
+  },
+  en: {
+    tracks: 'tracks', back: 'Back to collections', note: 'Editorial note', playAll: 'Play', shuffleAll: 'Shuffle',
+    share: 'Share', copied: 'Link copied', search: 'Search title, artist or album…', noResults: 'Nothing matches your search.',
+    title: 'Title', artist: 'Artist', album: 'Album', time: 'Time', dossier: 'Dossier', file: 'FILE',
+    josesNote: "Jose's note", year: 'Year', duration: 'Duration', from: 'Since', genres: 'Genres',
+    aboutArtist: 'About the artist', aboutAlbum: 'About the album', officialLinks: 'Official channels',
+    support: 'If this song moves you, find it on its official channels: buy the record, go to the show, follow the artist.',
+    noData: 'No public data about this track yet.', loading: 'Searching the archives…', source: 'Sources',
+    play: 'Play', pause: 'Pause', prev: 'Previous', next: 'Next', volume: 'Volume', seek: 'Position',
+    shuffle: 'Shuffle', repeat: { off: 'Repeat: off', all: 'Repeat: collection', one: 'Repeat: song' },
+    mute: 'Mute', select: 'Pick a song', open: 'Open collection', shortcuts: 'Shortcuts: K play/pause · J/L ±10 s · N/P next/previous · M mute',
+    hasNote: "Has a note from Jose", close: 'Close', inOtherLang: 'in Spanish',
+    links: { official: 'Official site', bandcamp: 'Bandcamp', instagram: 'Instagram', x: 'X / Twitter', facebook: 'Facebook', youtube: 'YouTube', soundcloud: 'SoundCloud', tiktok: 'TikTok', wikipedia: 'Wikipedia', musicbrainz: 'MusicBrainz' },
+    types: { Person: 'Solo artist', Group: 'Group', Orchestra: 'Orchestra', Choir: 'Choir', Character: 'Character', Other: 'Other' },
+  },
+};
 
-// Suma las duraciones "m:ss" de cada track -> "11h 15m 04s"
-function totalDurationOf(tracks) {
-  const secs = tracks.reduce((acc, t) => {
-    const [m, s] = (t.duration || '0:00').split(':').map(Number);
-    return acc + (m || 0) * 60 + (s || 0);
-  }, 0);
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${Math.floor(secs / 3600)}h ${pad(Math.floor((secs % 3600) / 60))}m ${pad(secs % 60)}s`;
+// ---------- Datos de expedientes: se descargan solo la primera vez que se abren ----------
+let metaPromise = null;
+function loadMeta() {
+  metaPromise ||= fetch('/data/music-meta.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  return metaPromise;
+}
+function useMeta(enabled) {
+  const [meta, setMeta] = useState(undefined);
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    loadMeta().then((m) => alive && setMeta(m));
+    return () => { alive = false; };
+  }, [enabled]);
+  return meta;
 }
 
-// TUS COLECCIONES
-const COLLECTIONS = [
-  {
-    id: 'vol1',
-    title: "Canciones para cuando muera y transcienda",
-    description:
-      "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo? Una selección de Jose Shōta",
-    cover: `${BASE}/images/playlist-cover-v1.jpg`,
-    tracks: playlistData,
-  },
-  {
-    id: 'vol2',
-    title: "Te Miré en Mí",
-    description:
-      "Nunca olvidaré su voz. 'Ya cállate', decía con esa mueca tan peculiar. Del folk y otras misceláneas latinas, te miré en mí.",
-    cover: "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/images/playlist-cover-vol2.jpg",
-    tracks: playlistVol2,
-  },
-].map((c) => ({ ...c, totalDuration: totalDurationOf(c.tracks), trackCount: c.tracks.length }));
-
-// Si una portada falla, ocultamos la imagen rota (el contenedor negro queda de fondo)
 const hideBrokenImage = (e) => { e.currentTarget.style.visibility = 'hidden'; };
 
-const ACCENT = 'var(--color-highlight)';
+function setUrl(params) {
+  const url = new URL(window.location.href);
+  url.search = '';
+  for (const [k, v] of Object.entries(params)) if (v != null) url.searchParams.set(k, v);
+  history.replaceState(history.state, '', url);
+}
 
-export default function MusicGallery() {
-  const [activePlaylist, setActivePlaylist] = useState(null);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+// =====================================================================
+export default function MusicGallery({ collections = [], lang = 'es' }) {
+  const t = T[lang] || T.es;
+  const [activeId, setActiveId] = useState(null);
+  const [focusTrackId, setFocusTrackId] = useState(null);
 
-  const audioRef = useRef(null);
-  const progressBarRef = useRef(null);
-
-  const currentTrack = activePlaylist ? activePlaylist.tracks[currentTrackIndex] : null;
-
-  const displayCover = currentTrack?.cover && currentTrack.cover !== "" 
-    ? currentTrack.cover 
-    : activePlaylist?.cover;
-
+  // Enlaces profundos: /musica?vol=vol2&pista=12
   useEffect(() => {
-    const el = audioRef.current;
-    if (!el) return;
-    el.volume = volume;
+    const read = () => {
+      const p = new URLSearchParams(window.location.search);
+      const vol = p.get('vol');
+      if (vol && collections.some((c) => c.id === vol)) {
+        setActiveId(vol);
+        const pista = Number(p.get('pista'));
+        setFocusTrackId(pista || null);
+      }
+    };
+    read();
+  }, []);
 
-    if (isPlaying) el.play().catch(e => console.error("Playback error:", e));
-    else el.pause();
-  }, [isPlaying, currentTrackIndex, activePlaylist, volume]);
+  const active = collections.find((c) => c.id === activeId);
 
-  const togglePlay = () => setIsPlaying(p => !p);
+  const open = (id) => { setActiveId(id); setFocusTrackId(null); setUrl({ vol: id }); window.scrollTo({ top: 0 }); };
+  const close = () => { setActiveId(null); setFocusTrackId(null); setUrl({}); };
 
-  // Abrir una colección siempre empieza desde el primer track
-  const openPlaylist = (playlist) => {
-    setCurrentTrackIndex(0);
-    setCurrentTime(0);
-    setDuration(0);
-    setIsPlaying(false);
-    setActivePlaylist(playlist);
-  };
+  if (!active) return <Gallery collections={collections} t={t} onOpen={open} />;
+  return <Playlist key={active.id} collection={active} t={t} lang={lang} onBack={close} initialTrackId={focusTrackId} />;
+}
 
-  const playTrack = (index) => {
-    setCurrentTrackIndex(index);
-    setIsPlaying(true);
-  };
-
-  const prevTrack = () =>
-    setCurrentTrackIndex((c) => (c > 0 ? c - 1 : activePlaylist.tracks.length - 1));
-  const nextTrack = () =>
-    setCurrentTrackIndex((c) => (c < activePlaylist.tracks.length - 1 ? c + 1 : 0));
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current && progressBarRef.current) {
-      const ct = audioRef.current.currentTime || 0;
-      const dur = audioRef.current.duration || 0;
-      setCurrentTime(ct);
-      setDuration(dur);
-      const progress = dur ? (ct / dur) * 100 : 0;
-      progressBarRef.current.style.width = `${progress}%`;
-    }
-  };
-
-  const handleProgressClick = (e) => {
-    const timeline = e.currentTarget;
-    const clickPosition = (e.clientX - timeline.getBoundingClientRect().left) / timeline.offsetWidth;
-    audioRef.current.currentTime = clickPosition * audioRef.current.duration;
-  };
-
-  const formatTime = (time) => {
-    if (isNaN(time)) return "00:00";
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
-
-  // --- VISTA 1: GALERÍA (Grid de "Expedientes") ---
-  if (!activePlaylist) {
-    return (
-      <div className="cueva-mono grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in pb-24">
-        {COLLECTIONS.map((playlist) => (
-          <div
-            key={playlist.id}
-            role="button"
-            tabIndex={0}
-            onClick={() => openPlaylist(playlist)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPlaylist(playlist); }
-            }}
-            className="group cursor-pointer cueva-card p-4 transition-colors duration-300 outline-none"
-          >
-            {/* Contenedor de Imagen */}
-            <div className="relative aspect-square bg-black mb-6 overflow-hidden border"
-                 style={{ borderColor: 'var(--color-text-accent)' }}
-            >
-              <img
-                src={playlist.cover}
-                alt={playlist.title}
-                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
-                onError={hideBrokenImage}
-              />
-
-              {/* Hover: overlay con descripción */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute inset-0 bg-black/70" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10">
-                  <div className="text-[10px] uppercase tracking-widest cueva-muted mb-2">
-                    Descripción
-                  </div>
-                  <p className="text-[11px] leading-relaxed cueva-text opacity-90 cueva-clamp-4">
-                    {playlist.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 text-[10px] uppercase tracking-widest border border-white/10 backdrop-blur-sm cueva-muted">
-                VOL. {(playlist.id.replace('vol', '')).padStart(2, '0')}
-              </div>
-            </div>
-
-            {/* Info Minimalista */}
-            <div className="space-y-3">
-              <h3 className="cueva-title text-xl leading-tight cueva-text transition-colors">
-                {playlist.title}
-              </h3>
-
-              <div className="flex justify-between items-center text-[10px] uppercase tracking-widest border-t pt-3"
-                   style={{ borderColor: 'var(--color-text-accent)' }}
-              >
-                <span className="flex items-center gap-2 cueva-muted">
-                  <Music size={10} /> {playlist.trackCount} Tracks
-                </span>
-                <span className="flex items-center gap-2 cueva-muted">
-                  <Clock size={10} /> {playlist.totalDuration}
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  // --- VISTA 2: INTERIOR DE LA PLAYLIST (Split View) ---
+// ---------- Vista 1: galería de colecciones ----------
+function Gallery({ collections, t, onOpen }) {
+  const s = usePlayer();
   return (
-    <div className="cueva-mono relative">
+    <div className="mg-gallery animate-fade-in">
+      {collections.map((c, i) => {
+        const isCurrent = s.collectionId === c.id;
+        return (
+          <article key={c.id} className="mg-card group">
+            <button type="button" className="mg-card-open" onClick={() => onOpen(c.id)} aria-label={`${t.open}: ${c.title}`}>
+              <div className="mg-cover">
+                <img src={c.cover} alt="" loading={i < 3 ? 'eager' : 'lazy'} onError={hideBrokenImage} />
+                <div className="mg-cover-desc">
+                  <span>{t.note}</span>
+                  <p className="cueva-clamp-4">{c.description}</p>
+                </div>
+                <span className="mg-vol">VOL. {String(i + 1).padStart(2, '0')}</span>
+                {isCurrent && s.isPlaying && <span className="mg-live">● ON AIR</span>}
+              </div>
+              <h3 className="mg-card-title">{c.title}</h3>
+              <div className="mg-card-stats">
+                <span>{c.trackCount} {t.tracks}</span>
+                <span>{c.totalDuration}</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              className="mg-card-play"
+              aria-label={`${isCurrent && s.isPlaying ? t.pause : t.play}: ${c.title}`}
+              onClick={() => (isCurrent ? player.toggle() : player.load(c.id, 0))}
+            >
+              {isCurrent && s.isPlaying ? <Pause size={18} /> : <Play size={18} />}
+            </button>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
 
-      <audio
-        ref={audioRef}
-        src={currentTrack?.src}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={() => {
-          const dur = audioRef.current?.duration || 0;
-          setDuration(dur);
-          setCurrentTime(0);
-          if (progressBarRef.current) progressBarRef.current.style.width = `0%`;
-        }}
-        onEnded={() => {
-          setCurrentTrackIndex((i) => {
-            const last = activePlaylist.tracks.length - 1;
-            if (i < last) return i + 1;
-            setIsPlaying(false);
-            return i;
-          });
-        }}
-      />
+// ---------- Vista 2: interior de una colección ----------
+function Playlist({ collection, t, lang, onBack, initialTrackId }) {
+  const s = usePlayer();
+  const tracks = TRACKS[collection.id] || [];
+  const isThis = s.collectionId === collection.id;
+  const [query, setQuery] = useState('');
+  const [selectedId, setSelectedId] = useState(initialTrackId || (isThis ? tracks[s.index]?.id : tracks[0]?.id));
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [toast, setToast] = useState('');
+  const listRef = useRef(null);
+  const meta = useMeta(true);
 
-      {/* 2. CREAMOS ESTE DIV PARA LA ANIMACIÓN (Envuelve todo el contenido visual principal) */}
-      <div className="animate-fade-in"></div>
+  // El expediente sigue a la canción que suena
+  const playingId = isThis ? tracks[s.index]?.id : null;
+  const firstRun = useRef(true);
+  useEffect(() => {
+    // con un enlace compartido, respetamos la pista del enlace al entrar
+    if (firstRun.current) { firstRun.current = false; if (initialTrackId) return; }
+    if (playingId) setSelectedId(playingId);
+  }, [playingId]);
 
-      {/* Botón Volver */}
-      <button
-        onClick={() => { setIsPlaying(false); setActivePlaylist(null); }}
-        className="mb-6 flex items-center gap-2 text-xs uppercase tracking-widest cueva-muted hover:cueva-text transition-colors pl-2"
-      >
-        <ChevronLeft size={14} /> Volver a Colecciones
-      </button>
+  // Enlace profundo: llevar la pista a la vista
+  useEffect(() => {
+    if (!initialTrackId) return;
+    const el = listRef.current?.querySelector(`[data-track="${initialTrackId}"]`);
+    el?.scrollIntoView({ block: 'center' });
+    if (window.matchMedia('(max-width: 1023px)').matches) setSheetOpen(true);
+  }, [initialTrackId]);
 
-      {/* ✅ Descripción al inicio de la playlist (cuando ya la abriste) */}
-      <div className="cueva-card p-4 mb-8">
-        <div className="text-[10px] uppercase tracking-widest cueva-muted mb-2">
-          Expediente / Nota editorial
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (!q) return tracks.map((tr, i) => ({ tr, i }));
+    return tracks
+      .map((tr, i) => ({ tr, i }))
+      .filter(({ tr }) => `${tr.title} ${tr.artist} ${tr.album}`.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q));
+  }, [query, tracks]);
+
+  const selectedIndex = Math.max(0, tracks.findIndex((tr) => tr.id === selectedId));
+  const selected = tracks[selectedIndex];
+
+  const playAt = (i) => {
+    if (isThis && s.index === i) player.toggle();
+    else player.load(collection.id, i);
+  };
+  const playAll = (shuffle) => {
+    if (shuffle !== s.shuffle) player.toggleShuffle();
+    const start = shuffle ? Math.floor(Math.random() * tracks.length) : 0;
+    player.load(collection.id, start);
+  };
+
+  const share = async (track) => {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('vol', collection.id);
+    if (track) url.searchParams.set('pista', track.id);
+    const text = track ? `${track.title} — ${track.artist}` : collection.title;
+    try {
+      if (navigator.share && window.matchMedia('(pointer: coarse)').matches) await navigator.share({ title: text, url: url.href });
+      else { await navigator.clipboard.writeText(url.href); setToast(t.copied); setTimeout(() => setToast(''), 2000); }
+    } catch {}
+  };
+
+  const openDossier = (tr) => {
+    setSelectedId(tr.id);
+    setUrl({ vol: collection.id, pista: tr.id });
+    if (window.matchMedia('(max-width: 1023px)').matches) setSheetOpen(true);
+  };
+
+  return (
+    <div className="mg-playlist animate-fade-in">
+      <button type="button" className="mg-back" onClick={onBack}><ChevronLeft size={14} /> {t.back}</button>
+
+      <header className="mg-head">
+        <img src={collection.cover} alt="" className="mg-head-cover" onError={hideBrokenImage} />
+        <div className="mg-head-text">
+          <h2>{collection.title}</h2>
+          <p className="mg-head-note">{collection.description}</p>
+          <p className="mg-head-stats">{collection.trackCount} {t.tracks} · {collection.totalDuration}</p>
+          <div className="mg-head-actions">
+            <button type="button" className="mg-btn mg-btn-primary" onClick={() => (isThis ? player.toggle() : playAll(false))}>
+              {isThis && s.isPlaying ? <Pause size={14} /> : <Play size={14} />} {isThis && s.isPlaying ? t.pause : t.playAll}
+            </button>
+            <button type="button" className="mg-btn" onClick={() => playAll(true)}><Shuffle size={14} /> {t.shuffleAll}</button>
+            <button type="button" className="mg-btn" onClick={() => share(null)}><Share2 size={14} /> {t.share}</button>
+          </div>
         </div>
-        <p className="text-sm leading-relaxed cueva-text opacity-90">
-          {activePlaylist.description}
-        </p>
+      </header>
+
+      <div className="mg-layout">
+        <div className="mg-list-col">
+          <label className="mg-search">
+            <Search size={14} aria-hidden="true" />
+            <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.search} aria-label={t.search} />
+          </label>
+
+          <div className="mg-list-head" aria-hidden="true">
+            <span>#</span><span>{t.title}</span><span>{t.artist}</span><span>{t.album}</span><span>{t.time}</span><span></span>
+          </div>
+
+          <ol className="mg-list" ref={listRef}>
+            {filtered.length === 0 && <li className="mg-empty">{t.noResults}</li>}
+            {filtered.map(({ tr, i }) => {
+              const current = isThis && s.index === i;
+              const hasNote = !!collection.notes[tr.id];
+              return (
+                <li key={tr.id} data-track={tr.id}
+                  className={`mg-row ${current ? 'is-current' : ''} ${selectedId === tr.id ? 'is-selected' : ''}`}>
+                  <button type="button" className="mg-row-play" onClick={() => playAt(i)}
+                    aria-label={`${current && s.isPlaying ? t.pause : t.play}: ${tr.title} — ${tr.artist}`} aria-current={current ? 'true' : undefined}>
+                    <span className="mg-num">
+                      {current
+                        ? (s.isLoading ? <Loader2 size={12} className="gp-spin" /> : <span className={`mg-eq ${s.isPlaying ? 'on' : ''}`} aria-hidden="true"><i /><i /><i /></span>)
+                        : String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="mg-title">{tr.title}{hasNote && <span className="mg-note-mark" title={t.hasNote}> ✎</span>}</span>
+                    <span className="mg-artist">{tr.artist}</span>
+                    <span className="mg-album">{tr.album}</span>
+                    <span className="mg-time">{tr.duration || '--:--'}</span>
+                  </button>
+                  <button type="button" className="mg-row-info" onClick={() => openDossier(tr)} aria-label={`${t.dossier}: ${tr.title}`} title={t.dossier}>
+                    <Info size={14} />
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        <aside className="mg-side" aria-label={t.dossier}>
+          <NowPlayingPanel collection={collection} selected={selected} selectedIndex={selectedIndex} t={t} />
+          <Dossier collection={collection} track={selected} meta={meta} t={t} lang={lang} onShare={share} />
+        </aside>
       </div>
 
-      {/* LAYOUT PRINCIPAL: Dos Columnas */}
-      {/* En móvil es columna (y añadimos padding bottom para que el player fijo no tape la última canción). En desktop es fila. */}
-      <div className="flex flex-col lg:flex-row gap-8 items-start relative pb-32 lg:pb-0">
-
-        {/* COLUMNA 1: LISTA DE CANCIONES */}
-        <div className="flex-1 w-full min-w-0">
-          <div className="overflow-x-hidden"> {/* Cambiado a hidden para evitar scroll lateral en móvil */}
-            <div className="w-full lg:min-w-[860px]"> {/* En móvil usa el 100% del ancho, en desktop fuerza el ancho mínimo */}
-
-              {/* Encabezado: Oculto en Móvil (hidden), Visible en Desktop (md:grid) */}
-              <div
-                className="hidden md:grid grid-cols-[35px_minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)_50px] gap-4 px-4 pb-2 mb-2 border-b text-[10px] uppercase tracking-widest"
-                style={{
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  borderColor: 'rgba(255,255,255,0.1)',
-                  color: 'var(--color-text-accent)',
-                  opacity: 0.8
-                }}
-              >
-                <div className="text-center opacity-50">#</div>
-                <div>Title</div>
-                <div>Artist</div>
-                <div>Album</div>
-                <div className="text-right">Time</div>
-              </div>
-
-              <div className="flex flex-col">
-                {activePlaylist.tracks.map((track, index) => {
-                  const isCurrent = currentTrackIndex === index;
-
-                  return (
-                    <div
-                      key={track.id}
-                      role="button"
-                      tabIndex={0}
-                      aria-current={isCurrent ? 'true' : undefined}
-                      onClick={() => playTrack(index)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playTrack(index); }
-                      }}
-                      className={`
-                        group grid 
-                        grid-cols-[1fr_auto] md:grid-cols-[35px_minmax(0,4fr)_minmax(0,3fr)_minmax(0,3fr)_50px]
-                        gap-2 md:gap-4 items-center py-3 md:py-4 px-3 md:px-4 cursor-pointer transition-all duration-200 border-b
-                        hover:bg-white/5
-                        ${isCurrent ? 'bg-white/5 pl-[14px]' : ''}
-                      `}
-                      style={{
-                        borderBottomColor: 'rgba(255,255,255,0.06)',
-                        borderLeftWidth: '2px',
-                        borderLeftStyle: 'solid',
-                        borderLeftColor: isCurrent ? ACCENT : 'transparent'
-                      }}
-                      >
-                      {/* # (Solo Desktop) */}
-                      <div className="hidden md:flex text-[10px] text-center cueva-muted justify-center">
-                      {isCurrent
-                          ? <Disc size={12} className={isPlaying ? "animate-spin-slow" : ""} style={{ color: ACCENT }} />
-                          : (index + 1).toString().padStart(2, '0')
-                        }
-                      </div>
-                      {/* INFO BLOCK: En móvil, agrupa Título y Artista. En desktop, el grid los separa visualmente */}
-                      {/* Este div wrapper extra ayuda a controlar layout móvil vs desktop si fuera necesario, 
-                        pero para mantener tu grid desktop, usaremos 'contents' o clases condicionales. 
-                        MÉTODO SIMPLIFICADO: Renderizamos diferente para móvil/desktop en este bloque.
-                      */}
-                
-                      {/* VERSIÓN MOVIL: Título + Artista apilados */}
-                      <div className="flex flex-col md:hidden overflow-hidden">
-                        <span className={`text-sm leading-tight ${isCurrent ? '' : 'cueva-text'}`} style={isCurrent ? { color: ACCENT } : undefined}>
-                          {track.title}
-                        </span>
-                        <span className="text-xs cueva-muted mt-1">
-                          {track.artist}
-                        </span>
-                      </div>
-
-                      {/* VERSIÓN DESKTOP: Celdas individuales (hidden on mobile, block on md) */}
-                
-                      {/* Title Desktop */}
-                      <div
-                        className="hidden md:block text-sm truncate group-hover:whitespace-normal group-hover:overflow-visible"
-                        style={isCurrent ? { color: ACCENT } : undefined}
-
-                      >
-                        {track.title}
-                      </div>
-                      
-                      {/* Artist Desktop */}
-                      <div className="hidden md:block text-xs cueva-muted group-hover:opacity-90 truncate group-hover:whitespace-normal">
-                        {track.artist}
-                      </div>
-
-                      {/* Album (Solo Desktop) */}
-                      <div className="hidden md:block text-xs cueva-muted opacity-80 truncate group-hover:whitespace-normal">
-                        {track.album}
-                      </div>
-
-                      {/* Duration */}
-                      <div className="text-[10px] text-right cueva-muted whitespace-nowrap">
-                        {track.duration || "--:--"}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        {/* COLUMNA 2: REPRODUCTOR (STICKY DESKTOP) */}
-        {/* Este es el reproductor GRANDE original. Lo ocultaremos en móvil (hidden) y mostraremos en desktop (lg:block) */}
-        <div className="hidden lg:block w-[clamp(260px,35vw,380px)] flex-shrink-0 sticky top-8 cueva-card p-6 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto">
-
-          {/* Portada */}
-          <div className="aspect-square w-full bg-black mb-6 relative overflow-hidden border"
-               style={{ borderColor: 'rgba(255,255,255,0.08)' }}
-          >
-            <img
-              src={displayCover}
-              alt="Now Playing Cover"
-              className={`w-full h-full object-cover transition-all duration-700 ${isPlaying ? 'scale-100 opacity-100 grayscale-0' : 'scale-105 opacity-60 grayscale'}`}
-            />
-          </div>
-
-          {/* Info del Track */}
-          <div className="text-center mb-8 overflow-x-auto">
-            <h2 className="text-lg cueva-text leading-tight mb-1 whitespace-nowrap w-max mx-auto">
-              {currentTrack ? currentTrack.title : "Selecciona un track"}
-            </h2>
-            <p
-              className="text-xs uppercase tracking-widest whitespace-nowrap w-max mx-auto"
-              style={{ color: ACCENT }}
-            >
-              {currentTrack ? currentTrack.artist : "Waiting..."}
-            </p>
-          </div>
-
-          {/* Controles */}
-          <div className={`space-y-6 transition-opacity duration-500 ${currentTrack ? 'opacity-100 pointer-events-auto' : 'opacity-50 pointer-events-none'}`}>
-
-            {/* Timeline */}
-            <div className="w-full cursor-pointer group py-2" onClick={handleProgressClick}>
-              <div className="h-[2px] w-full relative" style={{ background: 'rgba(255,255,255,0.12)' }}>
-                <div ref={progressBarRef} className="h-full w-0 absolute top-0 left-0 cueva-progress">
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow"></div>
-                </div>
-              </div>
-              <div className="flex justify-between text-[10px] cueva-muted mt-2">
-                <span>{formatTime(currentTime)}</span>
-                <span>{duration ? formatTime(duration) : "00:00"}</span>
-              </div>
-            </div>
-
-            {/* Botones */}
-            <div className="flex items-center justify-center gap-8">
-              <button
-                onClick={prevTrack}
-                aria-label="Anterior"
-                className="cueva-muted hover:text-white transition-colors"
-              >
-                <SkipBack size={20} />
-              </button>
-
-              <button
-                onClick={togglePlay}
-                aria-label={isPlaying ? 'Pausa' : 'Reproducir'}
-                className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-100 text-black hover:scale-105 hover:bg-white transition-all"
-              >
-                {isPlaying ? <Pause size={24} fill="black" /> : <Play size={24} fill="black" className="ml-1" />}
-              </button>
-
-              <button
-                onClick={nextTrack}
-                aria-label="Siguiente"
-                className="cueva-muted hover:text-white transition-colors"
-              >
-                <SkipForward size={20} />
+      {sheetOpen && selected && (
+        <div className="mg-sheet-backdrop" onClick={() => setSheetOpen(false)}>
+          <div className="mg-sheet" role="dialog" aria-modal="true" aria-label={t.dossier} onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="mg-sheet-close" onClick={() => setSheetOpen(false)} aria-label={t.close}><X size={16} /></button>
+            <div className="mg-sheet-top">
+              <img src={mediaUrl(selected.cover) || collection.cover} alt="" onError={hideBrokenImage} />
+              <button type="button" className="mg-btn mg-btn-primary" onClick={() => playAt(selectedIndex)}>
+                {isThis && s.index === selectedIndex && s.isPlaying ? <><Pause size={14} /> {t.pause}</> : <><Play size={14} /> {t.play}</>}
               </button>
             </div>
-
-            {/* Volumen */}
-            <div className="flex items-center gap-3 pt-4 border-t"
-                 style={{ borderColor: 'rgba(255,255,255,0.08)' }}
-            >
-              <Volume2 size={14} className="cueva-muted" />
-              <input
-                type="range" min="0" max="1" step="0.05" value={volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
-                className="cueva-range w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-          </div>
-
-        </div>
-      </div>
-      {/* --- REPRODUCTOR MÓVIL (FIXED BOTTOM) --- */}
-      {/* Visible solo en pantallas pequeñas (lg:hidden) */}
-      {currentTrack && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-md border-t border-white/10 p-3 z-50 animate-fade-in">
-          {/* Barra de progreso fina arriba */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-white/10" onClick={handleProgressClick}>
-            <div 
-              className="h-full cueva-progress transition-all duration-100" 
-              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-3 pt-1">
-            {/* Info Izquierda */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <img 
-                src={displayCover} 
-                alt="cover" 
-                className={`w-10 h-10 object-cover border border-white/10 ${isPlaying ? 'grayscale-0' : 'grayscale'}`} 
-              />
-              <div className="overflow-hidden">
-                <div className="text-sm text-white truncate leading-tight">
-                  {currentTrack.title}
-                </div>
-                <div className="text-[10px] cueva-muted truncate uppercase tracking-wider">
-                  {currentTrack.artist}
-                </div>
-              </div>
-            </div>
-
-            {/* Controles Derecha */}
-            <div className="flex items-center gap-3">
-              <button onClick={prevTrack} aria-label="Anterior" className="cueva-muted p-1">
-                <SkipBack size={18} />
-              </button>
-              <button
-                onClick={togglePlay}
-                aria-label={isPlaying ? 'Pausa' : 'Reproducir'}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-black"
-              >
-                {isPlaying ? <Pause size={18} fill="black" /> : <Play size={18} fill="black" className="ml-1" />}
-              </button>
-              <button onClick={nextTrack} aria-label="Siguiente" className="cueva-muted p-1">
-                <SkipForward size={18} />
-              </button>
-            </div>
+            <Dossier collection={collection} track={selected} meta={meta} t={t} lang={lang} onShare={share} />
           </div>
         </div>
       )}
+
+      {toast && <div className="mg-toast" role="status">{toast}</div>}
     </div>
+  );
+}
+
+// ---------- Panel "sonando ahora" (escritorio) ----------
+function NowPlayingPanel({ collection, selected, selectedIndex, t }) {
+  const s = usePlayer();
+  const isThis = s.collectionId === collection.id;
+  const track = isThis ? TRACKS[collection.id][s.index] : selected;
+  if (!track) return null;
+  const cover = mediaUrl(track.cover) || collection.cover;
+  const active = isThis;
+  const RepeatIcon = s.repeat === 'one' ? Repeat1 : Repeat;
+
+  return (
+    <div className="mg-np">
+      <div className="mg-np-cover">
+        <img src={cover} alt="" className={active && s.isPlaying ? 'is-playing' : ''} onError={hideBrokenImage} />
+      </div>
+      <div className="mg-np-text">
+        <h3>{track.title}</h3>
+        <p>{track.artist}</p>
+      </div>
+      <input
+        type="range" className="mg-np-progress" min={0} max={(active && s.duration) || 0} step={1}
+        value={active ? Math.min(s.time, s.duration || s.time) : 0}
+        onChange={(e) => player.seek(Number(e.target.value))} disabled={!active} aria-label={t.seek}
+        style={{ '--pct': `${active && s.duration ? (s.time / s.duration) * 100 : 0}%` }}
+      />
+      <div className="mg-np-times"><span>{formatTime(active ? s.time : 0)}</span><span>{active ? formatTime(s.duration) : track.duration}</span></div>
+      <div className="mg-np-controls">
+        <button type="button" onClick={player.toggleShuffle} aria-pressed={s.shuffle} aria-label={t.shuffle} title={t.shuffle} className="mg-icon"><Shuffle size={15} /></button>
+        <button type="button" onClick={() => (active ? player.prev() : player.load(collection.id, Math.max(0, selectedIndex - 1)))} aria-label={t.prev} className="mg-icon"><SkipBack size={18} /></button>
+        <button type="button" className="mg-np-main" aria-label={active && s.isPlaying ? t.pause : t.play}
+          onClick={() => (active ? player.toggle() : player.load(collection.id, selectedIndex))}>
+          {active && s.isLoading ? <Loader2 size={22} className="gp-spin" /> : active && s.isPlaying ? <Pause size={22} /> : <Play size={22} />}
+        </button>
+        <button type="button" onClick={() => (active ? player.next() : player.load(collection.id, selectedIndex + 1))} aria-label={t.next} className="mg-icon"><SkipForward size={18} /></button>
+        <button type="button" onClick={player.cycleRepeat} aria-pressed={s.repeat !== 'off'} aria-label={t.repeat[s.repeat]} title={t.repeat[s.repeat]} className="mg-icon"><RepeatIcon size={15} /></button>
+      </div>
+      <div className="mg-np-volume">
+        <button type="button" onClick={player.toggleMute} aria-label={t.mute} className="mg-icon">{s.muted || s.volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />}</button>
+        <input type="range" min={0} max={1} step={0.05} value={s.muted ? 0 : s.volume} onChange={(e) => player.setVolume(Number(e.target.value))} aria-label={t.volume} />
+      </div>
+      <p className="mg-np-shortcuts">{t.shortcuts}</p>
+    </div>
+  );
+}
+
+// ---------- Expediente de la pista ----------
+function Dossier({ collection, track, meta, t, lang, onShare }) {
+  if (!track) return null;
+  const info = meta?.tracks?.[`${collection.id}:${track.id}`];
+  const artist = info?.artist ? meta.artists[info.artist] : null;
+  const album = info?.releaseGroup ? meta.releaseGroups[info.releaseGroup] : null;
+  const year = album?.year || info?.year;
+  const note = collection.notes[track.id];
+  const other = lang === 'es' ? 'en' : 'es';
+  const bio = artist?.bio?.[lang] || artist?.bio?.[other];
+  const bioOther = !artist?.bio?.[lang] && !!artist?.bio?.[other];
+  const about = album?.about?.[lang] || album?.about?.[other];
+  const links = artist?.links || {};
+  const fileNo = `${collection.id.toUpperCase()}-${String(track.id).padStart(3, '0')}`;
+  const life = artist ? [artist.begin, artist.end].filter(Boolean).join('–') : '';
+
+  return (
+    <section className="mg-dossier" aria-live="polite">
+      <div className="mg-dossier-head">
+        <span>{t.file} No. {fileNo}</span>
+        <button type="button" className="mg-icon" onClick={() => onShare(track)} aria-label={`${t.share}: ${track.title}`} title={t.share}><Share2 size={14} /></button>
+      </div>
+
+      <h3 className="mg-dossier-title">{track.title}</h3>
+      <dl className="mg-facts">
+        <dt>{t.artist}</dt><dd>{track.artist}</dd>
+        <dt>{t.album}</dt><dd>{track.album}</dd>
+        {year && <><dt>{t.year}</dt><dd>{year}</dd></>}
+        <dt>{t.duration}</dt><dd>{track.duration}</dd>
+      </dl>
+
+      {note && (
+        <div className="mg-josenote">
+          <span>{t.josesNote}</span>
+          <p>{note}</p>
+        </div>
+      )}
+
+      {meta === undefined && <p className="mg-muted">{t.loading}</p>}
+      {meta !== undefined && !artist && <p className="mg-muted">{t.noData}</p>}
+
+      {artist && (
+        <div className="mg-block">
+          <h4>{t.aboutArtist}</h4>
+          <p className="mg-artist-line">
+            <strong>{artist.name}</strong>
+            {[artist.type && (t.types[artist.type] || artist.type), artist.area || artist.country, life].filter(Boolean).map((x) => <span key={x}> · {x}</span>)}
+          </p>
+          {artist.genres?.length > 0 && <p className="mg-genres">{artist.genres.map((g) => <span key={g} className="tag">{g}</span>)}</p>}
+          {bio && <p className="mg-bio">{bio.extract}{bioOther && <em> ({t.inOtherLang})</em>}</p>}
+        </div>
+      )}
+
+      {about && (
+        <div className="mg-block">
+          <h4>{t.aboutAlbum}{album?.title ? ` — ${album.title}` : ''}</h4>
+          <p className="mg-bio">{about.extract}</p>
+        </div>
+      )}
+
+      {artist && (
+        <div className="mg-block">
+          <h4>{t.officialLinks}</h4>
+          <ul className="mg-links">
+            {Object.entries(links).map(([k, url]) => (
+              <li key={k}><a href={url} target="_blank" rel="noopener">{t.links[k] || k} <ExternalLink size={11} /></a></li>
+            ))}
+            {bio?.url && <li><a href={bio.url} target="_blank" rel="noopener">{t.links.wikipedia} <ExternalLink size={11} /></a></li>}
+            <li><a href={artist.musicbrainz} target="_blank" rel="noopener">{t.links.musicbrainz} <ExternalLink size={11} /></a></li>
+          </ul>
+          <p className="mg-support">{t.support}</p>
+        </div>
+      )}
+
+      {(bio || about) && (
+        <p className="mg-sources">
+          {t.source}: <a href="https://musicbrainz.org" target="_blank" rel="noopener">MusicBrainz</a> (CC0) ·{' '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">Wikipedia (CC BY-SA 4.0)</a>
+        </p>
+      )}
+    </section>
   );
 }

@@ -1,0 +1,13 @@
+---
+const { texto = '' } = Astro.props;
+---
+<div class="md-term">
+  <div class="md-term-bar" aria-hidden="true"><span></span><span></span><span></span> jose@cueva:~</div>
+  <pre>{texto}</pre>
+</div>
+<style>
+  .md-term { border: 1px solid var(--color-line); background: #000; margin: 1.6em 0; font-family: var(--font-mono); }
+  .md-term-bar { font-size: 0.7rem; color: var(--color-text-accent); padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--color-line); display: flex; gap: 0.35rem; align-items: center; }
+  .md-term-bar span { width: 8px; height: 8px; border-radius: 50%; background: #333; display: inline-block; }
+  pre { margin: 0; border: 0; padding: 0.9rem; color: #8fe3a5; white-space: pre-wrap; font-size: 0.88rem; background: transparent; }
+</style>

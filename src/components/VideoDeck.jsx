@@ -1,9 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import videoData from '../data/videos.json';
 
 // --- The Expanded Modal (Glass Layer) ---
-const ExpandedCard = ({ video, onClose }) => {
+const ExpandedCard = ({ video, onClose, lang }) => {
+  // Al abrir un video, la música de la cueva se pausa; si vuelve a sonar, se cierra el video.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('cueva:pause-music'));
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('cueva:music-play', onClose);
+    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('cueva:music-play', onClose); };
+  }, [onClose]);
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.9 }}
@@ -17,14 +24,14 @@ const ExpandedCard = ({ video, onClose }) => {
         
         {/* Header */}
         <div className="expanded-header">
-           <span className="cueva-mono cueva-accent text-xs">ARCHIVE ITEM: {video.title}</span>
-           <button onClick={onClose} className="close-btn">X</button>
+           <span className="cueva-mono cueva-accent text-xs">{lang === 'es' ? 'PIEZA' : 'ITEM'} No. {String(video.n).padStart(2, '0')}</span>
+           <button onClick={onClose} className="close-btn" aria-label={lang === 'es' ? 'Cerrar' : 'Close'}>X</button>
         </div>
 
         {/* Video Area - LOADS IFRAME NOW (Performance win) */}
         <div className="expanded-video">
            <iframe 
-               src={`https://www.youtube.com/embed/${video.id}?autoplay=1`} 
+               src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1`} 
                title={video.title} 
                frameBorder="0" 
                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -39,7 +46,7 @@ const ExpandedCard = ({ video, onClose }) => {
            <p className="cueva-muted cueva-mono text-sm leading-relaxed">
              {video.desc}
              <br/><br/>
-             <span className="cueva-accent">{">> END OF RECORD."}</span>
+             <span className="cueva-accent">{lang === 'es' ? '>> FIN DEL REGISTRO.' : '>> END OF RECORD.'}</span>
            </p>
         </div>
       </div>
@@ -48,7 +55,7 @@ const ExpandedCard = ({ video, onClose }) => {
 };
 
 // --- The Swipeable Card ---
-const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
+const Card = ({ video, index, total, onSwipe, isFront, onExpand, lang }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-10, 10]); 
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]); 
@@ -111,14 +118,14 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
     >
       <div className="card-inner">
         <div className="card-header">
-           <span className="cueva-mono cueva-accent text-xs">ITEM NO. 0{index + 1}</span>
+           <span className="cueva-mono cueva-accent text-xs">{lang === 'es' ? 'PIEZA' : 'ITEM'} No. {String(video.n).padStart(2, '0')}</span>
         </div>
 
         <div className="video-container">
             {/* THUMBNAIL ONLY - Massive speed boost */}
             <img 
-                src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
-                alt="Video Thumbnail"
+                src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`}
+                alt=""
                 className="video-thumb"
             />
             <div className="play-overlay">▶</div>
@@ -134,7 +141,7 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
         
         <div className="card-footer">
             <span className="cueva-mono cueva-accent text-xs">
-                {isFront ? '[ TAP TO INSPECT / SWIPE >> ]' : 'LOCKED'}
+                {isFront ? (lang === 'es' ? '[ TOCA PARA VER / DESLIZA >> ]' : '[ TAP TO INSPECT / SWIPE >> ]') : (lang === 'es' ? 'EN ESPERA' : 'LOCKED')}
             </span>
         </div>
       </div>
@@ -143,9 +150,11 @@ const Card = ({ video, index, total, onSwipe, isFront, onExpand }) => {
 };
 
 // --- Main Container ---
-export default function VideoDeck() {
-  const [cards, setCards] = useState(videoData);
+export default function VideoDeck({ videos = [], lang = 'es' }) {
+  const [cards, setCards] = useState(videos);
   const [selectedVideo, setSelectedVideo] = useState(null);
+
+  const closeVideo = React.useCallback(() => setSelectedVideo(null), []);
 
   const moveToEnd = (fromIndex) => {
     setCards((currentCards) => {
@@ -171,6 +180,7 @@ export default function VideoDeck() {
                         isFront={index === 0}
                         onSwipe={() => moveToEnd(index)}
                         onExpand={() => setSelectedVideo(video)}
+                        lang={lang}
                     />
                 );
             })}
@@ -181,7 +191,8 @@ export default function VideoDeck() {
             {selectedVideo && (
                 <ExpandedCard 
                     video={selectedVideo} 
-                    onClose={() => setSelectedVideo(null)} 
+                    onClose={closeVideo}
+                    lang={lang}
                 />
             )}
         </AnimatePresence>
@@ -201,7 +212,7 @@ export default function VideoDeck() {
                 position: relative;
                 width: 85%;
                 max-width: 340px; 
-                height: 520px;
+                height: min(520px, 66dvh);
             }
             .deck-card {
                 position: absolute;
