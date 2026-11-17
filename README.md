@@ -68,6 +68,15 @@ npm install
 PUBLIC_KEYSTATIC_STORAGE=github npm run dev
 ```
 
+En **Windows (PowerShell)**:
+
+```powershell
+npm install
+$env:PUBLIC_KEYSTATIC_STORAGE="github"; npm run dev
+```
+
+> ⚠️ En este modo el editor guarda directamente en GitHub. Durante la configuración **no guardes ninguna entrada**.
+
 1. Abre http://127.0.0.1:4321/keystatic y sigue el asistente: crea una **GitHub App** para el repositorio `JoseShota/Jose-Shotas-Blog`. Al terminar, se crea un archivo `.env` con 4 claves (nunca lo subas a GitHub; ya está en `.gitignore`).
 2. En GitHub → Settings → Developer settings → GitHub Apps → tu app → **Callback URL**, añade:
    `https://www.joseshota.net/api/keystatic/github/oauth/callback`
