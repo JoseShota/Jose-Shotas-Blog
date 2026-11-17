@@ -3,6 +3,18 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, Disc, Clock, Music, Chevro
 import playlistData from '../data/playlist.json';
 import playlistVol2 from '../data/playlist-vol2.json';
 
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Suma las duraciones "m:ss" de cada track -> "11h 15m 04s"
+function totalDurationOf(tracks) {
+  const secs = tracks.reduce((acc, t) => {
+    const [m, s] = (t.duration || '0:00').split(':').map(Number);
+    return acc + (m || 0) * 60 + (s || 0);
+  }, 0);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${Math.floor(secs / 3600)}h ${pad(Math.floor((secs % 3600) / 60))}m ${pad(secs % 60)}s`;
+}
+
 // TUS COLECCIONES
 const COLLECTIONS = [
   {
@@ -10,10 +22,8 @@ const COLLECTIONS = [
     title: "Canciones para cuando muera y transcienda",
     description:
       "Imagina levitar en medio de una calle transitada. De inmediato reconoces que partirás sin regresar. ¿Qué canción elegirías de fondo? Una selección de Jose Shōta",
-    cover: "/images/playlist-cover-v1.jpg",
+    cover: `${BASE}/images/playlist-cover-v1.jpg`,
     tracks: playlistData,
-    totalDuration: "11h 16m 09s",
-    trackCount: playlistData.length
   },
   {
     id: 'vol2',
@@ -22,10 +32,11 @@ const COLLECTIONS = [
       "Nunca olvidaré su voz. 'Ya cállate', decía con esa mueca tan peculiar. Del folk y otras misceláneas latinas, te miré en mí.",
     cover: "https://pub-aaf3924643cd497aa862a84aa6eaadb0.r2.dev/images/playlist-cover-vol2.jpg",
     tracks: playlistVol2,
-    totalDuration: "3h 45m 11s",
-    trackCount: playlistVol2.length
   },
-];
+].map((c) => ({ ...c, totalDuration: totalDurationOf(c.tracks), trackCount: c.tracks.length }));
+
+// Si una portada falla, ocultamos la imagen rota (el contenedor negro queda de fondo)
+const hideBrokenImage = (e) => { e.currentTarget.style.visibility = 'hidden'; };
 
 const ACCENT = 'var(--color-highlight)';
 
@@ -56,6 +67,25 @@ export default function MusicGallery() {
   }, [isPlaying, currentTrackIndex, activePlaylist, volume]);
 
   const togglePlay = () => setIsPlaying(p => !p);
+
+  // Abrir una colección siempre empieza desde el primer track
+  const openPlaylist = (playlist) => {
+    setCurrentTrackIndex(0);
+    setCurrentTime(0);
+    setDuration(0);
+    setIsPlaying(false);
+    setActivePlaylist(playlist);
+  };
+
+  const playTrack = (index) => {
+    setCurrentTrackIndex(index);
+    setIsPlaying(true);
+  };
+
+  const prevTrack = () =>
+    setCurrentTrackIndex((c) => (c > 0 ? c - 1 : activePlaylist.tracks.length - 1));
+  const nextTrack = () =>
+    setCurrentTrackIndex((c) => (c < activePlaylist.tracks.length - 1 ? c + 1 : 0));
 
   const handleTimeUpdate = () => {
     if (audioRef.current && progressBarRef.current) {
@@ -90,9 +120,9 @@ export default function MusicGallery() {
             key={playlist.id}
             role="button"
             tabIndex={0}
-            onClick={() => setActivePlaylist(playlist)}
+            onClick={() => openPlaylist(playlist)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setActivePlaylist(playlist);
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPlaylist(playlist); }
             }}
             className="group cursor-pointer cueva-card p-4 transition-colors duration-300 outline-none"
           >
@@ -104,7 +134,7 @@ export default function MusicGallery() {
                 src={playlist.cover}
                 alt={playlist.title}
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 grayscale group-hover:grayscale-0"
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/400x400/1a1a1a/ffffff?text=NO+IMAGE'; }}
+                onError={hideBrokenImage}
               />
 
               {/* Hover: overlay con descripción */}
@@ -227,9 +257,12 @@ export default function MusicGallery() {
                   return (
                     <div
                       key={track.id}
-                      onClick={() => {
-                        setCurrentTrackIndex(index);
-                        setIsPlaying(true);
+                      role="button"
+                      tabIndex={0}
+                      aria-current={isCurrent ? 'true' : undefined}
+                      onClick={() => playTrack(index)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playTrack(index); }
                       }}
                       className={`
                         group grid 
@@ -349,7 +382,8 @@ export default function MusicGallery() {
             {/* Botones */}
             <div className="flex items-center justify-center gap-8">
               <button
-                onClick={() => setCurrentTrackIndex((c) => c > 0 ? c - 1 : activePlaylist.tracks.length - 1)}
+                onClick={prevTrack}
+                aria-label="Anterior"
                 className="cueva-muted hover:text-white transition-colors"
               >
                 <SkipBack size={20} />
@@ -357,13 +391,15 @@ export default function MusicGallery() {
 
               <button
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pausa' : 'Reproducir'}
                 className="w-14 h-14 flex items-center justify-center rounded-full bg-gray-100 text-black hover:scale-105 hover:bg-white transition-all"
               >
                 {isPlaying ? <Pause size={24} fill="black" /> : <Play size={24} fill="black" className="ml-1" />}
               </button>
 
               <button
-                onClick={() => setCurrentTrackIndex((c) => c < activePlaylist.tracks.length - 1 ? c + 1 : 0)}
+                onClick={nextTrack}
+                aria-label="Siguiente"
                 className="cueva-muted hover:text-white transition-colors"
               >
                 <SkipForward size={20} />
@@ -416,12 +452,19 @@ export default function MusicGallery() {
             </div>
 
             {/* Controles Derecha */}
-            <div className="flex items-center gap-4">
-              <button 
+            <div className="flex items-center gap-3">
+              <button onClick={prevTrack} aria-label="Anterior" className="cueva-muted p-1">
+                <SkipBack size={18} />
+              </button>
+              <button
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pausa' : 'Reproducir'}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white text-black"
               >
                 {isPlaying ? <Pause size={18} fill="black" /> : <Play size={18} fill="black" className="ml-1" />}
+              </button>
+              <button onClick={nextTrack} aria-label="Siguiente" className="cueva-muted p-1">
+                <SkipForward size={18} />
               </button>
             </div>
           </div>

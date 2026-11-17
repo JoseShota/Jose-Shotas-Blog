@@ -39,7 +39,7 @@ const ExpandedCard = ({ video, onClose }) => {
            <p className="cueva-muted cueva-mono text-sm leading-relaxed">
              {video.desc}
              <br/><br/>
-             <span className="cueva-accent">>> END OF RECORD.</span>
+             <span className="cueva-accent">{">> END OF RECORD."}</span>
            </p>
         </div>
       </div>
